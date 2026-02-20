@@ -6,105 +6,128 @@
     <title>PYTHAVA | Login</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0a0a0a; 
-            color: #d1d5db;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
-        .input-field {
-            background-color: #0f0f0f;
-            border: 1px solid #1f2937;
-            transition: all 0.2s;
-        }
-        .input-field:focus {
-            border-color: #3b82f6;
-            outline: none;
-            background-color: #111111;
-        }
+        .nav-link { transition: all 0.2s; }
+        .nav-link:hover { color: #ffffff; }
+        .input-field { background-color: #0f0f0f; border: 1px solid #1f2937; transition: all 0.2s; }
+        .input-field:focus { border-color: #3b82f6; outline: none; background-color: #111111; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col selection:bg-blue-500/30">
 
     <div class="h-1 w-full bg-gradient-to-r from-blue-600 to-transparent"></div>
 
-    <main class="flex-1 flex items-center justify-center px-6 py-20">
-        <div class="w-full max-w-[400px]">
+    <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
             
-            <div class="text-center mb-12">
-                <a href="/" class="text-white font-extrabold tracking-tighter text-2xl">PYTHAVA</a>
-                <p class="text-[11px] mono text-gray-600 mt-2 uppercase tracking-[0.3em]">Access authorized only</p>
+            <div class="flex-1">
+                <a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a>
+            </div>
+
+            <div class="flex-[2] flex justify-center">
+                <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
+                    <li><a href="/wargame" class="nav-link">Wargame</a></li>
+                    <li><a href="/blog" class="nav-link">Blog</a></li>
+                    <li><a href="/tools" class="nav-link">Tools</a></li>
+                    <li><a href="/admin" class="nav-link hover:text-red-500">Admin</a></li>
+                </ul>
+            </div>
+            
+            <div class="flex-1 flex justify-end" id="nav-auth-section">
+                <a href="/login" id="nav-login-btn" class="text-[11px] font-bold text-white border border-main px-4 py-1.5 rounded transition-all mono">
+                    LOG IN
+                </a>
+                <div id="nav-user-info" class="hidden flex items-center gap-4">
+                    <span class="text-[11px] mono text-blue-500 font-bold tracking-tighter">● ONLINE</span>
+                    <button id="nav-logout-btn" class="text-[10px] text-gray-600 hover:text-gray-300 underline underline-offset-4">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-[400px]">
+            <div class="text-center mb-10">
+                <h2 class="text-white font-extrabold text-2xl tracking-tight">Identity Access</h2>
+                <p class="text-[11px] mono text-gray-600 mt-2 uppercase tracking-[0.3em]">Secure login to PYTHAVA</p>
             </div>
 
             <div class="border border-main rounded-lg p-8 bg-[#0a0a0a]">
                 <form id="login-form" class="space-y-6">
                     <div>
                         <label class="block text-[11px] mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
-                        <input type="email" id="email" required 
-                               class="w-full px-4 py-3 rounded input-field text-sm text-white placeholder-gray-700" 
-                               placeholder="name@example.com">
+                        <input type="email" id="email" required class="w-full px-4 py-3 rounded input-field text-sm text-white placeholder-gray-700" placeholder="name@example.com">
                     </div>
 
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <label class="block text-[11px] mono text-gray-500 uppercase tracking-widest">Password</label>
-                            <a href="#" class="text-[10px] text-gray-600 hover:text-blue-500 transition-colors">Forgot?</a>
+                            <a href="#" class="text-[10px] text-gray-600 hover:text-blue-500">Forgot?</a>
                         </div>
-                        <input type="password" id="password" required 
-                               class="w-full px-4 py-3 rounded input-field text-sm text-white placeholder-gray-700" 
-                               placeholder="••••••••">
+                        <input type="password" id="password" required class="w-full px-4 py-3 rounded input-field text-sm text-white placeholder-gray-700" placeholder="••••••••">
                     </div>
 
-                    <button type="submit" 
-                            class="w-full bg-white text-black py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all active:scale-[0.98]">
+                    <button type="submit" class="w-full bg-white text-black py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">
                         Sign In
                     </button>
                 </form>
 
-                <div class="relative my-10">
-                    <div class="absolute inset-0 flex items-center">
-                        <div class="w-full border-t border-main"></div>
-                    </div>
-                    <div class="relative flex justify-center text-[10px] mono uppercase">
-                        <span class="bg-[#0a0a0a] px-3 text-gray-600 font-bold tracking-tighter">Social Access</span>
-                    </div>
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-main"></div></div>
+                    <div class="relative flex justify-center text-[10px] mono uppercase"><span class="bg-[#0a0a0a] px-3 text-gray-600 font-bold">Social</span></div>
                 </div>
 
-                <button id="github-login" 
-                        class="w-full border border-main text-white py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-[#111111] transition-all flex items-center justify-center gap-3 active:scale-[0.98]">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
-                    </svg>
+                <button id="github-login" class="w-full border border-main text-white py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-[#111111] transition-all flex items-center justify-center gap-3">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
                     Continue with GitHub
                 </button>
             </div>
-
-            <div class="mt-8 text-center">
-                <p class="text-[11px] text-gray-600 font-medium">
-                    Don't have an account? <a href="#" class="text-gray-400 hover:text-blue-500 underline underline-offset-4">Sign up</a>
-                </p>
-                <a href="/" class="inline-block mt-8 text-[10px] mono text-gray-700 hover:text-gray-400 transition-colors uppercase tracking-[0.2em]">← Back to Home</a>
-            </div>
+            
+            <a href="/" class="block mt-10 text-center text-[10px] mono text-gray-700 hover:text-gray-400 uppercase tracking-widest">← Return to Home</a>
         </div>
     </main>
 
     <footer class="py-10 text-center border-t border-main">
-        <span class="text-[10px] mono text-gray-700 uppercase tracking-widest">Identity Service // PYTHAVA</span>
+        <span class="text-[10px] mono text-gray-700 uppercase tracking-widest">PYTHAVA Security Service</span>
     </footer>
 
     <script>
-        // 로그인 폼 제출 이벤트 (Supabase 연동 시 여기에 함수 작성)
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            alert('로그인 로직을 연결할 차례입니다.');
+        // Supabase 초기화 (본인의 프로젝트 정보로 교체 필요)
+        const SUPABASE_URL = 'https://udcsxjtnnrxolwmavyqo.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // 로그인 상태 체크 및 UI 업데이트
+        async function checkSession() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            const loginBtn = document.getElementById('nav-login-btn');
+            const userInfo = document.getElementById('nav-user-info');
+
+            if (session) {
+                loginBtn?.classList.add('hidden');
+                userInfo?.classList.remove('hidden');
+            }
+        }
+
+        // GitHub 로그인 실행
+        document.getElementById('github-login').onclick = async () => {
+            await _supabase.auth.signInWithOAuth({
+                provider: 'github',
+                options: { redirectTo: window.location.origin }
+            });
         };
 
-        // GitHub 로그인 클릭
-        document.getElementById('github-login').onclick = () => {
-            alert('GitHub OAuth 연동을 준비합니다.');
+        // 로그아웃 실행
+        document.getElementById('nav-logout-btn').onclick = async () => {
+            await _supabase.auth.signOut();
+            window.location.reload();
         };
+
+        checkSession();
     </script>
 </body>
 </html>
