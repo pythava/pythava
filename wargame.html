@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PYTHAVA | Wargame</title>
+    <title>PYTHAVA | Challenge View</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -11,87 +11,65 @@
         body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
-        .nav-link { transition: all 0.2s; position: relative; }
-        .nav-link:hover { color: #ffffff; }
+        .input-field { background-color: #0f0f0f; border: 1px solid #1f2937; transition: all 0.2s; }
+        .input-field:focus { border-color: #10b981; outline: none; }
         .admin-link { opacity: 0; transition: all 0.3s; }
         .admin-link:hover { opacity: 1; color: #ef4444; }
-        
-        /* 카드 비율 설정 (가로3:세로1.5 => 2:1 비율) */
-        .challenge-card {
-            aspect-ratio: 3 / 1.5;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .challenge-card:hover {
-            border-color: #3b82f6;
-            background-color: #0f172a50;
-            transform: translateY(-4px);
-        }
-
-        .filter-select {
-            background: #0f0f0f;
-            border: 1px solid #1f2937;
-            color: #9ca3af;
-            appearance: none;
-            padding: 0 1rem;
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-        }
     </style>
 </head>
-<body class="selection:bg-blue-500/30">
+<body class="selection:bg-emerald-500/30">
 
     <div class="h-1 w-full bg-gradient-to-r from-emerald-600 via-teal-500 to-transparent"></div>
 
     <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
         <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex-1">
-                <a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a>
-            </div>
+            <div class="flex-1"><a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a></div>
             <div class="flex-[2] flex justify-center">
                 <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
-                    <li><a href="/wargame" class="nav-link active text-white">Wargame</a></li>
-                    <li><a href="/blog" class="nav-link">Blog</a></li>
-                    <li><a href="/tools" class="nav-link">Tools</a></li>
+                    <li><a href="/wargame" class="text-white active">Wargame</a></li>
+                    <li><a href="/blog" class="hover:text-white">Blog</a></li>
+                    <li><a href="/tools" class="hover:text-white">Tools</a></li>
                     <li><a href="/admin" class="nav-link admin-link">Admin</a></li>
                 </ul>
             </div>
             <div class="flex-1 flex justify-end" id="nav-auth-section">
-                <button id="login-btn" onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded mono tracking-tighter">LOG IN</button>
+                <button id="login-btn" onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 border border-main px-4 py-1.5 rounded mono">LOG IN</button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-16">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-            <div>
-                <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic">CHALLENGES</h1>
-                <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Prove your technical skills</p>
+    <main class="max-w-3xl mx-auto px-6 py-20">
+        <div class="border-b border-main pb-10 mb-10">
+            <div class="flex items-center gap-3 mb-6">
+                <span id="view-category" class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase tracking-widest">CATEGORY</span>
+                <span id="view-level" class="text-[10px] mono text-gray-600 font-bold uppercase">LEVEL</span>
             </div>
-            
-            <div class="flex flex-wrap gap-3">
-                <input type="text" id="search-input" placeholder="SEARCH_CHALLENGE..." 
-                    class="bg-[#0f0f0f] border border-main px-4 py-2 rounded text-[11px] mono text-white focus:border-emerald-500 outline-none w-48">
-                
-                <select id="level-filter" class="filter-select rounded w-28">
-                    <option value="">ALL_LEVELS</option>
-                    <option value="Basic">BASIC</option>
-                    <option value="Medium">MEDIUM</option>
-                    <option value="Hard">HARD</option>
-                </select>
-
-                <select id="category-filter" class="filter-select rounded w-28">
-                    <option value="">ALL_CATS</option>
-                    <option value="Web">WEB</option>
-                    <option value="Pwn">PWN</option>
-                    <option value="Rev">REV</option>
-                    <option value="Misc">MISC</option>
-                </select>
+            <h1 id="view-title" class="text-4xl font-extrabold text-white tracking-tighter mb-4 italic">CHALLENGE_TITLE</h1>
+            <div class="flex justify-between items-center text-[11px] mono text-gray-500 uppercase tracking-widest">
+                <span id="view-solvers">Solvers: 0</span>
+                <span id="view-points" class="text-emerald-500 font-bold">0 PT</span>
             </div>
         </div>
 
-        <div id="challenge-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="col-span-3 text-center py-20 mono text-gray-600 animate-pulse text-xs tracking-widest">
-                INITIALIZING_LAB_DATA...
+        <div class="mb-12">
+            <p id="view-content" class="text-gray-400 leading-relaxed whitespace-pre-wrap mb-8">
+                Loading challenge description...
+            </p>
+
+            <div id="file-section" class="hidden">
+                <a id="download-btn" href="#" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 border border-main bg-[#0f0f0f] hover:bg-[#161616] text-[11px] mono text-white rounded transition-all group">
+                    <svg class="w-4 h-4 text-emerald-500 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    DOWNLOAD_ATTACHMENT
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-[#0f0f0f] border border-main rounded-lg p-8">
+            <h4 class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em] mb-6">Submit Flag</h4>
+            <div class="flex gap-3">
+                <input type="text" id="flag-input" placeholder="FLAG{...}" 
+                    class="flex-1 px-4 py-3 rounded input-field text-sm text-white mono placeholder-gray-800">
+                <button id="submit-btn" class="bg-white text-black px-8 py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">Submit</button>
             </div>
         </div>
     </main>
@@ -101,69 +79,72 @@
         const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // 1. 공통 인증 체크 (닉네임 표시)
-        async function checkAuth() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            const navAuth = document.getElementById('nav-auth-section');
+        const params = new URLSearchParams(window.location.search);
+        const challengeId = params.get('id');
 
+        async function initView() {
+            // 1. 인증 체크
+            const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
                 const { data: profile } = await _supabase.from('profiles').select('nickname, points').eq('id', user.id).single();
-                navAuth.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <div class="text-right">
-                            <div class="text-white text-[11px] font-bold mono">${profile?.nickname.toUpperCase()}</div>
-                            <div class="text-emerald-500 text-[9px] mono">${profile?.points} PT</div>
-                        </div>
-                        <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-white underline">LOGOUT</button>
+                document.getElementById('nav-auth-section').innerHTML = `
+                    <div class="flex items-center gap-4 mono text-[11px]">
+                        <span class="text-white font-bold">${profile.nickname.toUpperCase()}</span>
+                        <button id="logout-btn" class="text-gray-600 hover:text-white underline">LOGOUT</button>
                     </div>`;
                 document.getElementById('logout-btn').onclick = async () => { await _supabase.auth.signOut(); location.reload(); };
             }
-        }
 
-        // 2. 워게임 리스트 불러오기 및 필터링
-        async function fetchChallenges() {
-            const search = document.getElementById('search-input').value;
-            const level = document.getElementById('level-filter').value;
-            const category = document.getElementById('category-filter').value;
+            // 2. 문제 데이터 로드
+            if (!challengeId) return alert("Invalid Challenge ID");
+            const { data: chal, error } = await _supabase.from('challenges').select('*').eq('id', challengeId).single();
 
-            let query = _supabase.from('challenges').select('*').order('created_at', { ascending: false });
+            if (chal) {
+                document.getElementById('view-title').innerText = chal.title;
+                document.getElementById('view-category').innerText = chal.category;
+                document.getElementById('view-level').innerText = chal.level;
+                document.getElementById('view-content').innerText = chal.content;
+                document.getElementById('view-solvers').innerText = `Solvers: ${chal.solvers || 0}`;
+                document.getElementById('view-points').innerText = `${chal.points} PT`;
 
-            if (search) query = query.ilike('title', `%${search}%`);
-            if (level) query = query.eq('level', level);
-            if (category) query = query.eq('category', category);
-
-            const { data, error } = await query;
-            const grid = document.getElementById('challenge-grid');
-
-            if (error || data.length === 0) {
-                grid.innerHTML = `<div class="col-span-3 text-center py-20 mono text-gray-800 uppercase tracking-widest text-xs font-bold">No_Challenges_Found</div>`;
-                return;
+                // 파일이 있을 경우 버튼 노출 (DB에 file_url 컬럼이 있다고 가정)
+                if (chal.file_url) {
+                    const fileSec = document.getElementById('file-section');
+                    const dlBtn = document.getElementById('download-btn');
+                    fileSec.classList.remove('hidden');
+                    dlBtn.href = chal.file_url;
+                }
             }
-
-            grid.innerHTML = data.map(item => `
-                <a href="/wargame/view?id=${item.id}" class="challenge-card border border-main bg-[#0a0a0a] p-8 flex flex-col justify-between group">
-                    <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase tracking-tighter">${item.category}</span>
-                            <span class="text-[10px] mono text-gray-600 uppercase font-bold tracking-widest">${item.level}</span>
-                        </div>
-                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight">${item.title}</h3>
-                    </div>
-                    <div class="flex justify-between items-end border-t border-main pt-4 mt-4">
-                        <span class="text-[10px] mono text-gray-700 uppercase">Solver: ${item.solvers || 0}</span>
-                        <span class="text-xs font-black text-white mono">${item.points} PT</span>
-                    </div>
-                </a>
-            `).join('');
         }
 
-        // 이벤트 리스너 등록
-        document.getElementById('search-input').addEventListener('input', fetchChallenges);
-        document.getElementById('level-filter').addEventListener('change', fetchChallenges);
-        document.getElementById('category-filter').addEventListener('change', fetchChallenges);
+        // 3. 플래그 검증 로직 (중요)
+        document.getElementById('submit-btn').onclick = async () => {
+            const flagInput = document.getElementById('flag-input').value;
+            const { data: { user } } = await _supabase.auth.getUser();
 
-        checkAuth();
-        fetchChallenges();
+            if (!user) return alert("Please log in first.");
+
+            // 서버 측 검증이 보안상 좋으나, 우선 클라이언트 로직 예시
+            const { data: chal } = await _supabase.from('challenges').select('*').eq('id', challengeId).single();
+
+            if (flagInput === chal.flag) {
+                // 이미 풀었는지 확인하는 로직은 추후 solvers 테이블 추가 시 구현 가능
+                alert("CORRECT FLAG! Points awarded.");
+                
+                // 유저 점수 업데이트 (RPC 또는 직접 업데이트)
+                const { data: profile } = await _supabase.from('profiles').select('points').eq('id', user.id).single();
+                await _supabase.from('profiles').update({ points: profile.points + chal.points }).eq('id', user.id);
+                
+                // 문제 Solver 수 증가
+                await _supabase.from('challenges').update({ solvers: (chal.solvers || 0) + 1 }).eq('id', challengeId);
+                
+                location.reload();
+            } else {
+                alert("WRONG FLAG. Try again.");
+            }
+        };
+
+        initView();
     </script>
 </body>
 </html>
