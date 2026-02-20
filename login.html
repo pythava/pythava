@@ -81,18 +81,52 @@
     </main>
 
     <script>
-        // Supabase 설정 (실제 값으로 교체 필요)
-        const SUPABASE_URL = 'https://udcsxjtnnrxolwmavyqo.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = 'https://udcsxjtnnrxolwmavyqo.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp';
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Google Login
-        document.getElementById('google-login').onclick = async () => {
-            await _supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo: window.location.origin }
-            });
-        };
-    </script>
+    // 1. 페이지 로드 시 이미 로그인되어 있는지 확인
+    async function checkSession() {
+        const { data: { session } } = await _supabase.auth.getSession();
+        if (session) {
+            // 이미 세션이 있다면 메인으로 튕겨줌
+            location.href = '/';
+        }
+    }
+    checkSession();
+
+    // 2. 이메일/비밀번호 로그인 로직
+    const loginForm = document.getElementById('login-form');
+    loginForm.onsubmit = async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const { data, error } = await _supabase.auth.signInWithPassword({
+            email: email,
+            password: password,
+        });
+
+        if (error) {
+            alert("Login Failed: " + error.message);
+        } else {
+            // 로그인 성공 시 메인 페이지로 이동
+            alert("Access Granted. Redirecting...");
+            location.href = '/'; 
+        }
+    };
+
+    // 3. Google 로그인
+    document.getElementById('google-login').onclick = async () => {
+        const { error } = await _supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: { 
+                redirectTo: window.location.origin + '/' // 로그인 후 메인으로
+            }
+        });
+        if (error) alert("OAuth Error: " + error.message);
+    };
+</script>
 </body>
 </html>
