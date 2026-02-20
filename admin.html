@@ -176,11 +176,14 @@
             e.preventDefault();
             const id = document.getElementById('blog-id').value;
             const payload = {
-                title: document.getElementById('blog-title').value,
-                content: document.getElementById('blog-content').value,
-                tags: document.getElementById('blog-tags').value,
-                category: document.getElementById('blog-category').value,
-                author: document.getElementById('blog-author').value
+                title: document.getElementById('wg-title').value,
+                category: document.getElementById('wg-category').value,
+                // value가 "Lv.1" 형식이면 숫지만 추출, 그냥 "1"이면 parseInt
+                level: parseInt(document.getElementById('wg-difficulty').value.replace(/[^0-9]/g, "")) || 1,
+                content: document.getElementById('wg-desc').value,
+                flag: document.getElementById('wg-flag').value,
+                points: parseInt(document.getElementById('wg-points').value) || 0,
+                file_url: document.getElementById('wg-file-url').value
             };
 
             let res;
