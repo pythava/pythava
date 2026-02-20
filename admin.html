@@ -193,6 +193,33 @@
         
         // 초기 로딩
         showSection('user');
+        // 페이지가 열리자마자 실행되어야 함
+        async function init() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            const navAuth = document.getElementById('nav-auth-section');
+        
+            if (user) {
+                // 유저 정보가 있으면 'LOG IN' 버튼 대신 닉네임 표시
+                const { data: profile } = await _supabase
+                    .from('profiles')
+                    .select('nickname')
+                    .eq('id', user.id)
+                    .single();
+        
+                navAuth.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <span class="text-white text-[11px] font-bold mono">${profile?.nickname || 'USER'}</span>
+                        <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-white underline">LOGOUT</button>
+                    </div>
+                `;
+        
+                document.getElementById('logout-btn').onclick = async () => {
+                    await _supabase.auth.signOut();
+                    location.reload();
+                };
+            }
+        }
+        init();
     </script>
 </body>
 </html>
