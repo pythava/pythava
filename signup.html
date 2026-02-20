@@ -72,24 +72,21 @@
         }
     
         if (data.user) {
-            // 2. insert 대신 upsert를 사용합니다. 
-            // upsert는 데이터가 없으면 넣고, 있으면 업데이트하므로 중복 오류가 나지 않습니다.
+            // upsert는 데이터가 있으면 'Update', 없으면 'Insert'를 수행하므로 23505 에러가 발생하지 않습니다.
             const { error: profileError } = await _supabase
                 .from('profiles')
-                .upsert([
-                    { 
-                        id: data.user.id, 
-                        email: email, 
-                        nickname: nickname, 
-                        points: 0 
-                    }
-                ], { onConflict: 'id' }); // id가 충돌나면 덮어쓰기(업데이트) 처리
-    
+                .upsert({ 
+                    id: data.user.id, 
+                    email: email, 
+                    nickname: nickname, 
+                    points: 0 
+                });
+        
             if (profileError) {
-                // 중복 오류(23505)인 경우 무시하고 진행, 그 외의 오류만 알림
-                if (profileError.code !== '23505') {
-                    console.error("Profile Logic Error:", profileError);
-                }
+                // upsert 환경에서 에러가 났다면 RLS(보안정책) 위반이나 데이터 형식 오류일 확률이 높습니다.
+                console.error("Profile Logic Error:", profileError.message);
+                alert("프로필 생성 중 오류가 발생했습니다: " + profileError.message);
+                return; // 에러가 발생하면 다음 단계(로그인 이동)로 넘어가지 않음
             }
             
             alert("회원가입이 완료되었습니다!");
