@@ -13,16 +13,11 @@
         .border-main { border-color: #1f2937; }
         .sidebar-item { transition: all 0.2s; border-left: 2px solid transparent; color: #64748b; }
         .sidebar-item.active { border-left: 2px solid #3b82f6; background-color: #0f172a; color: white; }
-        
-        /* 입력창 디자인 강화 */
         .input-field { background-color: #0a0a0a; border: 1px solid #1f2937; color: white; padding: 14px; border-radius: 8px; outline: none; font-size: 15px; transition: all 0.2s; width: 100%; }
         .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
-        
-        /* 점 3개 메뉴 관련 */
         .menu-dropdown { display: none; position: absolute; right: 0; top: 30px; background: #111; border: 1px solid #333; border-radius: 4px; z-index: 100; min-width: 100px; }
-        .menu-container:hover .more-btn { opacity: 1; }
-        .more-btn { opacity: 0; transition: opacity 0.2s; }
-
+        .more-btn { opacity: 0.6; transition: opacity 0.2s; }
+        .more-btn:hover { opacity: 1; }
         .hidden { display: none; }
     </style>
 </head>
@@ -94,15 +89,25 @@
                                     <option value="Misc">Misc</option>
                                 </select>
                                 <select id="wg-difficulty" class="input-field">
-                                    <option value="Lv.1">LEVEL 01</option>
-                                    <option value="Lv.2">LEVEL 02</option>
-                                    <option value="Lv.3">LEVEL 03</option>
-                                    <option value="Lv.4">LEVEL 04</option>
-                                    <option value="Lv.5">LEVEL 05</option>
+                                    <option value="1">LEVEL 01</option>
+                                    <option value="2">LEVEL 02</option>
+                                    <option value="3">LEVEL 03</option>
+                                    <option value="4">LEVEL 04</option>
+                                    <option value="5">LEVEL 05</option>
                                 </select>
                             </div>
                             <textarea id="wg-desc" placeholder="Challenge Description" rows="8" class="input-field" required></textarea>
-                            <input type="text" id="wg-file-url" placeholder="Attachment URL (Google Drive / Direct Link)" class="input-field">
+                            
+                            <div class="space-y-2">
+                                <label class="text-[10px] mono text-gray-500 uppercase">Challenge Attachment</label>
+                                <div class="flex gap-2">
+                                    <input type="text" id="wg-file-url" placeholder="Attachment URL (Direct Link)" class="input-field flex-1 text-xs">
+                                    <input type="file" id="wg-file-input" class="hidden" onchange="handleFileUpload(this)">
+                                    <button type="button" onclick="document.getElementById('wg-file-input').click()" class="bg-gray-800 hover:bg-gray-700 text-white px-6 rounded-lg text-xs font-bold mono border border-main whitespace-nowrap">UPLOAD FILE</button>
+                                </div>
+                                <p id="upload-status" class="text-[9px] mono text-blue-500 hidden">Uploading...</p>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-4">
                                 <input type="text" id="wg-flag" placeholder="FLAG{...}" class="input-field" required>
                                 <input type="number" id="wg-points" placeholder="Points (e.g. 500)" class="input-field" required>
@@ -124,7 +129,6 @@
         const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // 1. 접근 제어 및 초기화
         async function init() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user || user.email !== 'pythava1103@gmail.com') {
@@ -148,7 +152,6 @@
             if(name === 'user') fetchUsers();
         }
 
-        // --- 공통: 드롭다운 메뉴 렌더링 함수 ---
         function renderMoreMenu(table, id, dataJson) {
             const encodedData = btoa(encodeURIComponent(JSON.stringify(dataJson)));
             return `
@@ -171,36 +174,59 @@
             el.style.display = isVisible ? 'none' : 'block';
         };
 
-        // --- BLOG 제어 ---
+        // --- File Upload Logic ---
+        async function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const statusLabel = document.getElementById('upload-status');
+            statusLabel.innerText = "UP_LOADING: " + file.name;
+            statusLabel.classList.remove('hidden');
+
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+                const filePath = `challenges/${fileName}`;
+
+                const { data, error } = await _supabase.storage
+                    .from('challenge-files')
+                    .upload(filePath, file);
+
+                if (error) throw error;
+
+                const { data: { publicUrl } } = _supabase.storage
+                    .from('challenge-files')
+                    .getPublicUrl(filePath);
+
+                document.getElementById('wg-file-url').value = publicUrl;
+                statusLabel.innerText = "UPLOAD_SUCCESS: ✅";
+                setTimeout(() => statusLabel.classList.add('hidden'), 3000);
+            } catch (error) {
+                alert("Upload failed: " + error.message);
+                statusLabel.classList.add('hidden');
+            }
+        }
+
+        // --- BLOG Logic ---
         document.getElementById('blog-form').onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('blog-id').value;
             const payload = {
-                title: document.getElementById('wg-title').value,
-                category: document.getElementById('wg-category').value,
-                // value가 "Lv.1" 형식이면 숫지만 추출, 그냥 "1"이면 parseInt
-                level: parseInt(document.getElementById('wg-difficulty').value.replace(/[^0-9]/g, "")) || 1,
-                content: document.getElementById('wg-desc').value,
-                flag: document.getElementById('wg-flag').value,
-                points: parseInt(document.getElementById('wg-points').value) || 0,
-                file_url: document.getElementById('wg-file-url').value
+                title: document.getElementById('blog-title').value,
+                category: document.getElementById('blog-category').value,
+                content: document.getElementById('blog-content').value,
+                tags: document.getElementById('blog-tags').value,
+                author: document.getElementById('blog-author').value
             };
 
-            let res;
-            if (id) res = await _supabase.from('posts').update(payload).eq('id', id);
-            else res = await _supabase.from('posts').insert([payload]);
-
+            let res = id ? await _supabase.from('posts').update(payload).eq('id', id) : await _supabase.from('posts').insert([payload]);
             if(res.error) alert(res.error.message);
-            else { 
-                alert(id ? "Post Updated!" : "Post Published!"); 
-                resetBlogForm();
-                fetchBlogs(); 
-            }
+            else { alert("Success!"); resetBlogForm(); fetchBlogs(); }
         };
 
         async function fetchBlogs() {
             const { data } = await _supabase.from('posts').select('*').order('id', {ascending: false});
-            document.getElementById('blog-list').innerHTML = data.map(p => `
+            document.getElementById('blog-list').innerHTML = (data || []).map(p => `
                 <div class="border border-main p-5 rounded-lg bg-[#0a0a0a] flex justify-between items-center group relative hover:border-blue-500/50 transition-all">
                     <div class="flex-1">
                         <span class="text-[9px] mono text-blue-500 font-bold uppercase tracking-widest">[${p.category}]</span>
@@ -211,38 +237,31 @@
             `).join('');
         }
 
-        // --- WARGAME 제어 ---
+        // --- WARGAME Logic ---
         document.getElementById('wargame-form').onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('wg-id').value;
             const payload = {
                 title: document.getElementById('wg-title').value,
                 category: document.getElementById('wg-category').value,
-                level: document.getElementById('wg-difficulty').value,
+                level: parseInt(document.getElementById('wg-difficulty').value) || 1,
                 content: document.getElementById('wg-desc').value,
                 flag: document.getElementById('wg-flag').value,
-                points: parseInt(document.getElementById('wg-points').value),
+                points: parseInt(document.getElementById('wg-points').value) || 0,
                 file_url: document.getElementById('wg-file-url').value
             };
 
-            let res;
-            if (id) res = await _supabase.from('challenges').update(payload).eq('id', id);
-            else res = await _supabase.from('challenges').insert([payload]);
-
+            let res = id ? await _supabase.from('challenges').update(payload).eq('id', id) : await _supabase.from('challenges').insert([payload]);
             if(res.error) alert(res.error.message);
-            else { 
-                alert(id ? "Challenge Updated!" : "Challenge Deployed!"); 
-                resetWgForm();
-                fetchWargames(); 
-            }
+            else { alert("Success!"); resetWgForm(); fetchWargames(); }
         };
 
         async function fetchWargames() {
             const { data } = await _supabase.from('challenges').select('*').order('id', {ascending: false});
-            document.getElementById('wargame-list').innerHTML = data.map(wg => `
+            document.getElementById('wargame-list').innerHTML = (data || []).map(wg => `
                 <div class="border border-main p-5 rounded-lg bg-[#0a0a0a] flex justify-between items-center group relative hover:border-emerald-500/50 transition-all">
                     <div class="flex-1">
-                        <p class="text-[9px] mono text-emerald-500 font-bold uppercase tracking-widest">${wg.level} | ${wg.category}</p>
+                        <p class="text-[9px] mono text-emerald-500 font-bold uppercase tracking-widest">LV.${wg.level} | ${wg.category}</p>
                         <h4 class="text-white text-sm font-bold mt-1">${wg.title}</h4>
                     </div>
                     ${renderMoreMenu('challenges', wg.id, wg)}
@@ -250,21 +269,19 @@
             `).join('');
         }
 
-        // --- USER 제어 ---
         async function fetchUsers() {
             const { data } = await _supabase.from('profiles').select('*').order('points', {ascending: false});
-            document.getElementById('user-list-container').innerHTML = data.map(u => `
+            document.getElementById('user-list-container').innerHTML = (data || []).map(u => `
                 <div class="border border-main p-4 rounded bg-[#0a0a0a] flex justify-between items-center group">
                     <div>
-                        <span class="text-white font-bold text-sm uppercase">${u.nickname}</span>
-                        <span class="text-emerald-500 text-xs mono ml-4">${u.points} PT</span>
+                        <span class="text-white font-bold text-sm uppercase">${u.nickname || 'Unknown'}</span>
+                        <span class="text-emerald-500 text-xs mono ml-4">${u.points || 0} PT</span>
                     </div>
                     ${renderMoreMenu('profiles', u.id, u)}
                 </div>
             `).join('');
         }
 
-        // --- 데이터 수정 모드 ---
         window.editMode = (table, encodedData) => {
             const data = JSON.parse(decodeURIComponent(atob(encodedData)));
             if (table === 'posts') {
@@ -275,7 +292,6 @@
                 document.getElementById('blog-tags').value = data.tags;
                 document.getElementById('blog-form-title').innerText = "// Edit Mode (ID: " + data.id + ")";
                 document.getElementById('blog-submit-btn').innerText = "Update Post";
-                document.getElementById('blog-submit-btn').classList.replace('bg-blue-600', 'bg-orange-600');
             } else if (table === 'challenges') {
                 document.getElementById('wg-id').value = data.id;
                 document.getElementById('wg-title').value = data.title;
@@ -287,44 +303,22 @@
                 document.getElementById('wg-file-url').value = data.file_url || '';
                 document.getElementById('wg-form-title').innerText = "// Edit Mode (ID: " + data.id + ")";
                 document.getElementById('wg-submit-btn').innerText = "Update Challenge";
-                document.getElementById('wg-submit-btn').classList.replace('bg-emerald-600', 'bg-orange-600');
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        // --- 데이터 삭제 ---
         window.deleteData = async (table, id) => {
-            if(confirm(`[WARNING] Are you sure you want to delete ID: ${id} from ${table}? This cannot be undone.`)) {
+            if(confirm(`Delete ID: ${id}?`)) {
                 const { error } = await _supabase.from(table).delete().eq('id', id);
                 if(error) alert(error.message);
-                else {
-                    alert("Deleted successfully.");
-                    if(table === 'posts') fetchBlogs();
-                    else if(table === 'challenges') fetchWargames();
-                    else fetchUsers();
-                }
+                else { alert("Deleted."); location.reload(); }
             }
         };
 
-        function resetBlogForm() {
-            document.getElementById('blog-form').reset();
-            document.getElementById('blog-id').value = '';
-            document.getElementById('blog-form-title').innerText = "Create New Post";
-            document.getElementById('blog-submit-btn').innerText = "Publish Post";
-            document.getElementById('blog-submit-btn').className = "w-full bg-blue-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-blue-500";
-        }
-
-        function resetWgForm() {
-            document.getElementById('wargame-form').reset();
-            document.getElementById('wg-id').value = '';
-            document.getElementById('wg-form-title').innerText = "Deploy Challenge";
-            document.getElementById('wg-submit-btn').innerText = "Deploy Challenge";
-            document.getElementById('wg-submit-btn').className = "w-full bg-emerald-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-emerald-500";
-        }
-
+        function resetBlogForm() { document.getElementById('blog-form').reset(); document.getElementById('blog-id').value = ''; }
+        function resetWgForm() { document.getElementById('wargame-form').reset(); document.getElementById('wg-id').value = ''; }
         function handleLogout() { _supabase.auth.signOut().then(() => location.href='/login'); }
         
-        // 클릭 시 메뉴 닫기
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.menu-container')) {
                 document.querySelectorAll('.menu-dropdown').forEach(d => d.style.display = 'none');
