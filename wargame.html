@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PYTHAVA | Wargame</title>
+    <title>PYTHAVA | Wargame Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -12,11 +12,15 @@
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
         .nav-link { transition: all 0.2s; }
-        .nav-link:hover { color: #ffffff; }
         .admin-link { opacity: 0; transition: all 0.3s; }
         .admin-link:hover { opacity: 1; color: #ef4444; }
         
-        /* 카드 디자인 및 푼 문제 글로우 효과 */
+        /* 탭 메뉴 스타일 */
+        .tab-btn { position: relative; transition: all 0.3s; color: #6b7280; }
+        .tab-btn.active { color: #ffffff; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 2px; background: #10b981; }
+
+        /* 리스트 카드 및 글로우 */
         .challenge-card { aspect-ratio: 3 / 1.5; transition: all 0.3s ease; border-width: 1px; cursor: pointer; }
         .challenge-card:hover { border-color: #10b981; background-color: #064e3b20; transform: translateY(-5px); }
         .solved-glow { border-color: #10b981 !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
@@ -26,6 +30,10 @@
         .input-field:focus { border-color: #10b981; }
 
         .hidden { display: none; }
+        
+        /* 랭킹 로우 애니메이션 */
+        .rank-row { transition: background 0.2s; }
+        .rank-row:hover { background: #111111; }
     </style>
 </head>
 <body class="selection:bg-emerald-500/30">
@@ -38,8 +46,8 @@
             <div class="flex-[2] flex justify-center">
                 <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
                     <li><a href="/wargame" class="text-white">Wargame</a></li>
-                    <li><a href="/blog" class="nav-link">Blog</a></li>
-                    <li><a href="/tools" class="nav-link">Tools</a></li>
+                    <li><a href="/blog" class="nav-link hover:text-white">Blog</a></li>
+                    <li><a href="/tools" class="nav-link hover:text-white">Tools</a></li>
                     <li><a href="/admin" class="nav-link admin-link">Admin</a></li>
                 </ul>
             </div>
@@ -49,77 +57,58 @@
         </div>
     </nav>
 
-    <main id="list-view" class="max-w-6xl mx-auto px-6 py-16">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+    <div class="max-w-6xl mx-auto px-6 mt-12">
+        <div class="flex gap-8 border-b border-main pb-2 mb-12">
+            <button onclick="switchTab('challenge')" id="tab-challenge" class="tab-btn active text-sm font-black mono tracking-widest uppercase italic">Challenge</button>
+            <button onclick="switchTab('ranking')" id="tab-ranking" class="tab-btn text-sm font-black mono tracking-widest uppercase italic">Ranking</button>
+        </div>
+    </div>
+
+    <main id="challenge-view" class="max-w-6xl mx-auto px-6 pb-20">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-10">
             <div>
-                <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic uppercase">Lab_Challenges</h1>
-                <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Select your target and exploit</p>
+                <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic uppercase">Lab_Exploit</h1>
+                <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Breach the target and recover the flag</p>
             </div>
             <div class="flex flex-wrap gap-3">
                 <input type="text" id="search-input" placeholder="SEARCH..." class="bg-[#0f0f0f] border border-main px-4 py-2 rounded text-[11px] mono text-white w-44 outline-none focus:border-emerald-500">
-                <select id="level-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none">
+                <select id="level-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none focus:border-emerald-500">
                     <option value="">ALL_LEVELS</option>
-                    <option value="Lv.1">LEVEL 01</option>
-                    <option value="Lv.2">LEVEL 02</option>
-                    <option value="Lv.3">LEVEL 03</option>
-                    <option value="Lv.4">LEVEL 04</option>
-                    <option value="Lv.5">LEVEL 05</option>
+                    <option value="Lv.1">LEVEL 01</option><option value="Lv.2">LEVEL 02</option><option value="Lv.3">LEVEL 03</option><option value="Lv.4">LEVEL 04</option><option value="Lv.5">LEVEL 05</option>
                 </select>
-                <select id="category-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none">
+                <select id="category-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none focus:border-emerald-500">
                     <option value="">ALL_CATS</option>
-                    <option value="Pwn">PWN</option><option value="Rev">REV</option><option value="Web">WEB</option>
-                    <option value="Crypto">CRYPTO</option><option value="Forensic">FORENSIC</option><option value="Misc">MISC</option>
+                    <option value="Pwn">PWN</option><option value="Rev">REV</option><option value="Web">WEB</option><option value="Crypto">CRYPTO</option><option value="Forensic">FORENSIC</option><option value="Misc">MISC</option>
                 </select>
             </div>
         </div>
-        <div id="challenge-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            </div>
+        <div id="challenge-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
     </main>
 
-    <main id="detail-view" class="max-w-6xl mx-auto px-6 py-16 hidden">
-        <button onclick="showList()" class="text-[10px] mono text-gray-600 hover:text-emerald-500 mb-8 uppercase tracking-widest">← Back to List</button>
+    <main id="ranking-view" class="max-w-4xl mx-auto px-6 pb-20 hidden">
+        <div class="text-center mb-16">
+            <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic uppercase">Hall_Of_Fame</h1>
+            <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Top security researchers</p>
+        </div>
         
-        <div class="mb-12">
-            <div class="flex items-center gap-4 mb-4">
-                <span id="v-category" class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase italic">CATEGORY</span>
-                <span id="v-level" class="text-[10px] mono text-gray-600 font-bold">LEVEL</span>
-            </div>
-            <h1 id="v-title" class="text-5xl font-extrabold text-white tracking-tighter italic mb-4 uppercase">TITLE</h1>
-            <div class="h-px w-20 bg-emerald-500"></div>
+        <div class="content-box overflow-hidden rounded-lg">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="border-b border-main bg-[#0f0f0f]">
+                        <th class="px-8 py-4 text-[10px] mono text-gray-500 uppercase tracking-widest font-bold">Rank</th>
+                        <th class="px-8 py-4 text-[10px] mono text-gray-500 uppercase tracking-widest font-bold">User</th>
+                        <th class="px-8 py-4 text-[10px] mono text-gray-500 uppercase tracking-widest font-bold text-right">Points</th>
+                    </tr>
+                </thead>
+                <tbody id="ranking-body">
+                    </tbody>
+            </table>
         </div>
+    </main>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            <div class="lg:col-span-2 space-y-8">
-                <div class="content-box p-10 min-h-[350px]">
-                    <h2 class="text-[11px] mono text-gray-500 uppercase tracking-[0.3em] mb-8 font-bold">// DESCRIPTION</h2>
-                    <div id="v-content" class="text-gray-400 leading-relaxed text-lg whitespace-pre-wrap font-medium">Content...</div>
-                </div>
-                <div id="file-section" class="hidden">
-                    <a id="download-link" href="#" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 content-box hover:border-emerald-500 transition-all">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        <span class="text-[11px] mono font-bold text-white uppercase tracking-widest">Download Attachment</span>
-                    </a>
-                </div>
-            </div>
-            <div class="space-y-6">
-                <div class="content-box p-8">
-                    <h4 class="text-[10px] mono text-gray-600 uppercase tracking-widest mb-6 font-bold">Lab Status</h4>
-                    <div class="flex justify-between border-b border-main pb-3 mb-4">
-                        <span class="text-[11px] mono text-gray-500">AWARD</span>
-                        <span id="v-points" class="text-sm font-black text-emerald-500 mono">0 PT</span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-[11px] mono text-gray-500">SOLVERS</span>
-                        <span id="v-solvers" class="text-sm font-bold text-white mono">0</span>
-                    </div>
-                </div>
-                <div class="content-box p-8">
-                    <h4 class="text-[10px] mono text-emerald-500 uppercase tracking-widest mb-6 font-bold">Authentication</h4>
-                    <input type="text" id="flag-input" placeholder="FLAG{...}" class="w-full px-4 py-3 rounded input-field text-sm text-white mono mb-4">
-                    <button id="submit-btn" class="w-full bg-white text-black py-4 rounded font-black text-[11px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">Submit_Flag</button>
-                </div>
-            </div>
-        </div>
+    <main id="detail-view" class="max-w-6xl mx-auto px-6 py-4 hidden">
+        <button onclick="switchTab('challenge')" class="text-[10px] mono text-gray-600 hover:text-emerald-500 mb-8 uppercase tracking-widest">← Back to List</button>
+        <div id="detail-content-area"></div> 
     </main>
 
     <script>
@@ -128,7 +117,25 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
         let currentChallenge = null;
 
-        // 1. 유저 인증 확인
+        // 탭 전환 시스템
+        async function switchTab(tab) {
+            document.getElementById('challenge-view').classList.add('hidden');
+            document.getElementById('ranking-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.add('hidden');
+            document.getElementById('tab-challenge').classList.remove('active');
+            document.getElementById('tab-ranking').classList.remove('active');
+
+            if (tab === 'challenge') {
+                document.getElementById('challenge-view').classList.remove('hidden');
+                document.getElementById('tab-challenge').classList.add('active');
+                fetchChallenges();
+            } else if (tab === 'ranking') {
+                document.getElementById('ranking-view').classList.remove('hidden');
+                document.getElementById('tab-ranking').classList.add('active');
+                fetchRanking();
+            }
+        }
+
         async function checkAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
@@ -143,14 +150,12 @@
             return user;
         }
 
-        // 2. 리스트 불러오기 (SPA 방식)
         async function fetchChallenges() {
             const user = await checkAuth();
             const search = document.getElementById('search-input').value;
             const level = document.getElementById('level-filter').value;
             const category = document.getElementById('category-filter').value;
 
-            // 유저가 푼 문제 확인
             let solvedIds = [];
             if (user) {
                 const { data: logs } = await _supabase.from('solvers_log').select('challenge_id').eq('user_id', user.id);
@@ -175,7 +180,7 @@
                             </span>
                             <span class="text-[10px] mono text-gray-600 font-bold">${item.level}</span>
                         </div>
-                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight uppercase">${item.title}</h3>
+                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight uppercase italic">${item.title}</h3>
                     </div>
                     <div class="flex justify-between items-end border-t border-main pt-4 mt-4">
                         <span class="text-[9px] mono text-gray-700 uppercase tracking-widest">Solvers: ${item.solvers || 0}</span>
@@ -185,64 +190,90 @@
             }).join('');
         }
 
-        // 3. 상세보기 전환
+        async function fetchRanking() {
+            const { data: ranks, error } = await _supabase.from('profiles').select('nickname, points').order('points', { ascending: false }).limit(50);
+            const tbody = document.getElementById('ranking-body');
+            
+            tbody.innerHTML = ranks.map((u, index) => {
+                let rankStyle = index === 0 ? 'text-yellow-500 font-black' : (index === 1 ? 'text-gray-400 font-black' : (index === 2 ? 'text-orange-600 font-black' : 'text-gray-600 font-bold'));
+                let bgStyle = index === 0 ? 'bg-yellow-500/5' : '';
+                return `
+                <tr class="rank-row border-b border-main/50 ${bgStyle}">
+                    <td class="px-8 py-5 text-sm mono ${rankStyle}">${(index + 1).toString().padStart(2, '0')}</td>
+                    <td class="px-8 py-5 text-sm font-bold text-white uppercase tracking-tight">${u.nickname}</td>
+                    <td class="px-8 py-5 text-sm font-black text-emerald-500 mono text-right">${u.points.toLocaleString()} PT</td>
+                </tr>`;
+            }).join('');
+        }
+
         async function showDetail(id) {
             const { data: chal } = await _supabase.from('challenges').select('*').eq('id', id).single();
             if (!chal) return;
             currentChallenge = chal;
 
-            document.getElementById('list-view').classList.add('hidden');
+            document.getElementById('challenge-view').classList.add('hidden');
             document.getElementById('detail-view').classList.remove('hidden');
 
-            document.getElementById('v-title').innerText = chal.title;
-            document.getElementById('v-category').innerText = chal.category;
-            document.getElementById('v-level').innerText = chal.level;
-            document.getElementById('v-content').innerText = chal.content;
-            document.getElementById('v-points').innerText = `${chal.points} PT`;
-            document.getElementById('v-solvers').innerText = chal.solvers || 0;
-
-            if (chal.file_url) {
-                document.getElementById('file-section').classList.remove('hidden');
-                document.getElementById('download-link').href = chal.file_url;
-            } else {
-                document.getElementById('file-section').classList.add('hidden');
-            }
+            document.getElementById('detail-content-area').innerHTML = `
+                <div class="mb-12">
+                    <div class="flex items-center gap-4 mb-4">
+                        <span class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase italic">${chal.category}</span>
+                        <span class="text-[10px] mono text-gray-600 font-bold">${chal.level}</span>
+                    </div>
+                    <h1 class="text-5xl font-extrabold text-white tracking-tighter italic mb-4 uppercase">${chal.title}</h1>
+                    <div class="h-px w-20 bg-emerald-500"></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="content-box p-10 min-h-[350px]">
+                            <h2 class="text-[11px] mono text-gray-500 uppercase tracking-[0.3em] mb-8 font-bold">// DESCRIPTION</h2>
+                            <div class="text-gray-400 leading-relaxed text-lg whitespace-pre-wrap font-medium">${chal.content}</div>
+                        </div>
+                        ${chal.file_url ? `
+                            <a href="${chal.file_url}" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 content-box hover:border-emerald-500 transition-all">
+                                <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                <span class="text-[11px] mono font-bold text-white uppercase tracking-widest">Download Attachment</span>
+                            </a>
+                        ` : ''}
+                    </div>
+                    <div class="space-y-6">
+                        <div class="content-box p-8">
+                            <h4 class="text-[10px] mono text-gray-600 uppercase tracking-widest mb-6 font-bold">Lab Status</h4>
+                            <div class="flex justify-between border-b border-main pb-3 mb-4"><span class="text-[11px] mono text-gray-500">AWARD</span><span class="text-sm font-black text-emerald-500 mono">${chal.points} PT</span></div>
+                            <div class="flex justify-between"><span class="text-[11px] mono text-gray-500">SOLVERS</span><span class="text-sm font-bold text-white mono">${chal.solvers || 0}</span></div>
+                        </div>
+                        <div class="content-box p-8">
+                            <h4 class="text-[10px] mono text-emerald-500 uppercase tracking-widest mb-6 font-bold">Authentication</h4>
+                            <input type="text" id="flag-input" placeholder="FLAG{...}" class="w-full px-4 py-3 rounded input-field text-sm text-white mono mb-4">
+                            <button id="submit-btn-real" class="w-full bg-white text-black py-4 rounded font-black text-[11px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">Submit_Flag</button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            document.getElementById('submit-btn-real').onclick = async () => {
+                const { data: { user } } = await _supabase.auth.getUser();
+                if (!user) return alert("LOGIN_REQUIRED");
+                const input = document.getElementById('flag-input').value;
+                if (input === currentChallenge.flag) {
+                    const { data: already } = await _supabase.from('solvers_log').select('*').eq('user_id', user.id).eq('challenge_id', currentChallenge.id).single();
+                    if (already) return alert("ALREADY_SOLVED");
+                    await _supabase.from('solvers_log').insert([{ user_id: user.id, challenge_id: currentChallenge.id }]);
+                    const { data: p } = await _supabase.from('profiles').select('points').eq('id', user.id).single();
+                    await _supabase.from('profiles').update({ points: p.points + currentChallenge.points }).eq('id', user.id);
+                    await _supabase.from('challenges').update({ solvers: (currentChallenge.solvers || 0) + 1 }).eq('id', currentChallenge.id);
+                    alert("CORRECT!");
+                    switchTab('challenge');
+                } else { alert("WRONG FLAG."); }
+            };
             window.scrollTo(0,0);
         }
 
-        function showList() {
-            document.getElementById('detail-view').classList.add('hidden');
-            document.getElementById('list-view').classList.remove('hidden');
-            fetchChallenges();
-        }
-
-        // 4. Flag 제출
-        document.getElementById('submit-btn').onclick = async () => {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) return alert("LOGIN_REQUIRED");
-
-            const input = document.getElementById('flag-input').value;
-            if (input === currentChallenge.flag) {
-                const { data: already } = await _supabase.from('solvers_log').select('*').eq('user_id', user.id).eq('challenge_id', currentChallenge.id).single();
-                if (already) return alert("ALREADY_SOLVED");
-
-                await _supabase.from('solvers_log').insert([{ user_id: user.id, challenge_id: currentChallenge.id }]);
-                const { data: p } = await _supabase.from('profiles').select('points').eq('id', user.id).single();
-                await _supabase.from('profiles').update({ points: p.points + currentChallenge.points }).eq('id', user.id);
-                await _supabase.from('challenges').update({ solvers: (currentChallenge.solvers || 0) + 1 }).eq('id', currentChallenge.id);
-
-                alert("CORRECT! ACCESS GRANTED.");
-                showList();
-            } else {
-                alert("WRONG FLAG. ACCESS DENIED.");
-            }
-        };
-
-        // 초기화
+        // 초기 바인딩
         document.getElementById('search-input').addEventListener('input', fetchChallenges);
         document.getElementById('level-filter').addEventListener('change', fetchChallenges);
         document.getElementById('category-filter').addEventListener('change', fetchChallenges);
-        fetchChallenges();
+        
+        switchTab('challenge');
     </script>
 </body>
 </html>
