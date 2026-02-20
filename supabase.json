@@ -1,0 +1,17 @@
+{
+  "hosting": {
+    "public": "./", 
+    "ignore": [
+      "supabase/**",
+      "**/.*"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}
