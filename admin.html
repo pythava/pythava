@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PYTHAVA | Admin Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #050505; color: #d1d5db; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .border-main { border-color: #1f2937; }
+        .sidebar-item { transition: all 0.2s; border-left: 2px solid transparent; }
+        .sidebar-item.active { border-left: 2px solid #3b82f6; background-color: #0f172a; color: white; }
+        .admin-table th { font-family: 'JetBrains Mono'; font-size: 11px; text-transform: uppercase; color: #64748b; padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
+        .admin-table td { padding: 12px; border-bottom: 1px solid #111827; font-size: 13px; }
+        .btn-action { transition: all 0.2s; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; border: 1px solid #1f2937; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-red-500/30">
+
+    <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/90 backdrop-blur-md z-50">
+        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex-1"><a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA <span class="text-red-500 text-xs ml-2 mono">ADMIN</span></a></div>
+            <div class="flex-[2] flex justify-center">
+                <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
+                    <li><a href="/wargame" class="hover:text-white">Wargame</a></li>
+                    <li><a href="/blog" class="hover:text-white">Blog</a></li>
+                    <li><a href="/tools" class="hover:text-white">Tools</a></li>
+                </ul>
+            </div>
+            <div class="flex-1 flex justify-end" id="nav-auth-section">
+                <button id="nav-logout-btn" class="text-[10px] mono text-gray-600 hover:text-white">EXIT_SESSION</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 max-w-7xl mx-auto w-full">
+        <aside class="w-64 border-r border-main p-6 hidden md:block">
+            <nav class="space-y-2">
+                <button onclick="showSection('user')" id="menu-user" class="sidebar-item active w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3">
+                    <span>USR_MANAGEMENT</span>
+                </button>
+                <button onclick="showSection('blog')" id="menu-blog" class="sidebar-item w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3 text-gray-500 hover:text-white">
+                    <span>BLOG_ARCHIVE</span>
+                </button>
+                <button onclick="showSection('wargame')" id="menu-wargame" class="sidebar-item w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3 text-gray-500 hover:text-white">
+                    <span>WAR_CHALLENGES</span>
+                </button>
+            </nav>
+        </aside>
+
+        <main class="flex-1 p-8">
+            
+            <section id="section-user">
+                <h2 class="text-xl font-bold text-white mb-6 mono tracking-tighter">/Management/Users</h2>
+                <div class="overflow-x-auto border border-main rounded-lg">
+                    <table class="w-full admin-table bg-[#0a0a0a]">
+                        <thead>
+                            <tr>
+                                <th>Username / Email</th>
+                                <th>Joined Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="text-white font-bold">admin@pythava.io</span></td>
+                                <td class="mono">2026-02-10</td>
+                                <td><span class="text-blue-500 text-[10px] font-bold px-2 py-0.5 border border-blue-500/30 rounded">ROOT</span></td>
+                                <td>-</td>
+                            </tr>
+                            <tr>
+                                <td>guest_user_01</td>
+                                <td class="mono">2026-02-20</td>
+                                <td><span class="text-emerald-500 text-[10px] font-bold px-2 py-0.5 border border-emerald-500/30 rounded">ACTIVE</span></td>
+                                <td>
+                                    <button class="btn-action hover:bg-red-500/10 hover:text-red-500">BAN</button>
+                                    <button class="btn-action hover:bg-gray-700 ml-2">DELETE</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="section-blog" class="hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-bold text-white mono tracking-tighter">/Management/Blog</h2>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded text-xs font-bold hover:bg-blue-500 transition-all">+ NEW_POST</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="border border-main p-4 rounded bg-[#0a0a0a] flex items-center justify-between group hover:border-blue-500/50 transition-all">
+                        <div>
+                            <span class="text-[10px] mono text-gray-600">POST_ID: 0x82A</span>
+                            <h4 class="text-white font-bold">HackTheon 2025 Quals Writeup</h4>
+                        </div>
+                        <div class="flex gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
+                            <button class="btn-action hover:text-blue-400">EDIT</button>
+                            <button class="btn-action hover:text-red-400">REMOVE</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-wargame" class="hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="border border-main p-6 rounded bg-[#0a0a0a]">
+                        <h3 class="text-sm font-bold text-blue-500 uppercase tracking-widest mb-4 mono">Deploy Challenge</h3>
+                        <form class="space-y-4">
+                            <input type="text" placeholder="Challenge Title" class="w-full bg-[#050505] border border-main p-3 rounded text-sm focus:border-blue-500 outline-none">
+                            <textarea placeholder="Description" rows="4" class="w-full bg-[#050505] border border-main p-3 rounded text-sm focus:border-blue-500 outline-none"></textarea>
+                            <div class="flex gap-4">
+                                <input type="text" placeholder="Flag (e.g. PT{...})" class="flex-1 bg-[#050505] border border-main p-3 rounded text-sm outline-none">
+                                <input type="number" placeholder="Points" class="w-24 bg-[#050505] border border-main p-3 rounded text-sm outline-none">
+                            </div>
+                            <button class="w-full bg-blue-600 text-white py-3 rounded font-bold text-xs uppercase tracking-[0.2em] hover:bg-blue-500 transition-all">Upload Challenge</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 mono">Live List</h3>
+                        <div class="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                            <div class="border border-main p-4 rounded flex justify-between items-center bg-[#0a0a0a]/50">
+                                <div>
+                                    <p class="text-[11px] font-bold text-emerald-500 mono">EASY</p>
+                                    <p class="text-sm font-bold text-white">Basic SQL Injection</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button class="text-gray-600 hover:text-white">⚙</button>
+                                    <button class="text-gray-600 hover:text-red-500">×</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // 섹션 전환 로직
+        function showSection(name) {
+            // 모든 섹션 숨기기
+            ['user', 'blog', 'wargame'].forEach(s => {
+                document.getElementById('section-' + s).classList.add('hidden');
+                document.getElementById('menu-' + s).classList.remove('active', 'text-white');
+                document.getElementById('menu-' + s).classList.add('text-gray-500');
+            });
+
+            // 선택한 섹션만 보이기
+            document.getElementById('section-' + name).classList.remove('hidden');
+            document.getElementById('menu-' + name).classList.add('active', 'text-white');
+            document.getElementById('menu-' + name).classList.remove('text-gray-500');
+        }
+
+        // 로그아웃 (Supabase 연동 시 수정)
+        document.getElementById('nav-logout-btn').onclick = () => {
+            if(confirm('TERMINATE_ADMIN_SESSION?')) {
+                location.href = '/login';
+            }
+        };
+    </script>
+</body>
+</html>
