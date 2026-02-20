@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Studio X | Archive</title>
+    <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -14,10 +14,19 @@
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
-        .nav-link { transition: color 0.2s; }
+        .nav-link { transition: all 0.2s; position: relative; }
         .nav-link:hover { color: #ffffff; }
+        /* 현재 페이지 표시 언더라인 효과 */
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background-color: #3b82f6;
+        }
         
-        /* 스크롤바 디자인 */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
@@ -29,89 +38,72 @@
 
     <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
         <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-8">
-                <a href="/" class="text-white font-extrabold tracking-tighter text-lg">STUDIO<span class="text-blue-500">_X</span></a>
-                <ul class="hidden md:flex items-center gap-6 text-[13px] font-medium text-gray-500 uppercase tracking-widest mono">
-                    <li><a href="#wargame" class="nav-link">Wargame</a></li>
-                    <li><a href="#blog" class="nav-link text-white">Blog</a></li>
-                    <li><a href="#tools" class="nav-link">Tools</a></li>
-                    <li><a href="#admin" class="nav-link hover:text-red-400">Admin</a></li>
+            
+            <div class="flex-1">
+                <a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a>
+            </div>
+
+            <div class="flex-[2] flex justify-center">
+                <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
+                    <li><a href="/wargame" class="nav-link">Wargame</a></li>
+                    <li><a href="/blog" class="nav-link active text-white">Blog</a></li>
+                    <li><a href="/tools" class="nav-link">Tools</a></li>
+                    <li><a href="/admin" class="nav-link hover:text-red-500">Admin</a></li>
                 </ul>
             </div>
             
-            <div id="auth-section">
-                <button id="login-btn" class="text-[12px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded transition-all">
+            <div class="flex-1 flex justify-end" id="auth-section">
+                <button id="login-btn" class="text-[11px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded transition-all mono tracking-tighter">
                     LOG IN
                 </button>
                 <div id="user-info" class="hidden flex items-center gap-4">
-                    <span class="text-[12px] mono text-blue-500">● ONLINE</span>
-                    <button id="logout-btn" class="text-[11px] text-gray-600 hover:text-gray-300">LOGOUT</button>
+                    <span class="text-[11px] mono text-blue-500">ONLINE</span>
+                    <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-gray-300 underline underline-offset-4">LOGOUT</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-5xl mx-auto px-6 py-16">
+    <main class="max-w-5xl mx-auto px-6 py-20">
         
-        <section class="mb-20 pb-12 border-b border-main">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">
-                기록과 분석의 <br/>정제된 공간.
+        <section class="mb-24">
+            <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter leading-none">
+                Privacy, <br/>Research & Tools.
             </h1>
-            <p class="text-gray-500 text-lg leading-relaxed max-w-2xl">
-                워게임 풀이, 기술 블로그, 그리고 개인적인 도구들을 정돈된 형태로 보관합니다. 
-                불필요한 소음을 제거하고 본질에 집중합니다.
+            <p class="text-gray-500 text-lg leading-relaxed max-w-xl font-medium">
+                개인적인 연구 기록과 도구들을 모아놓은 아카이브입니다. <br/>
+                모든 컨텐츠는 정제된 데이터 기반으로 기록됩니다.
             </p>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-main">
+        <div class="grid grid-cols-1 md:grid-cols-3 border-t border-l border-main">
             
-            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
-                <div class="text-[11px] mono text-blue-500 mb-4 tracking-tighter uppercase font-bold">Post / 2026-02-20</div>
-                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400">HackTheon 2025 Quals Writeup</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">이번 대회에서 해결한 Web 및 Pwnable 문제들에 대한 상세 풀이를 정리했습니다.</p>
-                <div class="text-[12px] text-gray-600 mono group-hover:text-gray-400 italic">Read more →</div>
-            </div>
+            <a href="/blog" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
+                <div class="text-[11px] mono text-blue-500 mb-6 font-bold tracking-widest uppercase">/Archive/Blog</div>
+                <h3 class="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">Technical Writeups</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">해킹 대회 풀이 및 보안 기술 연구 기록.</p>
+            </a>
 
-            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
-                <div class="text-[11px] mono text-emerald-500 mb-4 tracking-tighter uppercase font-bold">Challenge / Active</div>
-                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-emerald-400">Binary Exploit 기초</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">Stack Overflow를 통한 리턴 어드레스 변조와 간단한 쉘 획득 연습.</p>
-                <div class="w-full bg-gray-900 h-1 mt-2">
-                    <div class="bg-emerald-500 h-full w-[70%]"></div>
-                </div>
-            </div>
+            <a href="/wargame" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
+                <div class="text-[11px] mono text-emerald-500 mb-6 font-bold tracking-widest uppercase">/Labs/Wargame</div>
+                <h3 class="text-xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">Challenge Solves</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">워게임 문제 풀이 현황 및 데이터베이스.</p>
+            </a>
 
-            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
-                <div class="text-[11px] mono text-indigo-500 mb-4 tracking-tighter uppercase font-bold">Tool / Utility</div>
-                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400">JWT Debugger</h3>
-                <p class="text-gray-500 text-sm leading-relaxed mb-6">웹 해킹 시 필요한 JWT 토큰 복호화 및 변조를 위한 간단한 툴입니다.</p>
-                <div class="text-[12px] text-gray-600 mono group-hover:text-gray-400 italic font-bold tracking-widest uppercase">Open</div>
-            </div>
+            <a href="/tools" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
+                <div class="text-[11px] mono text-indigo-500 mb-6 font-bold tracking-widest uppercase">/Bin/Tools</div>
+                <h3 class="text-xl font-bold text-white mb-4 group-hover:text-indigo-400 transition-colors">Developed Utilities</h3>
+                <p class="text-gray-500 text-sm leading-relaxed">효율적인 분석을 위한 커스텀 도구 모음.</p>
+            </a>
 
         </div>
-
-        <section class="mt-24">
-            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-8 mono">Recent History</h2>
-            <div class="space-y-4">
-                <div class="flex items-center justify-between py-4 border-b border-main hover:bg-[#111111] px-4 rounded group transition-all">
-                    <span class="text-sm font-medium text-gray-300 group-hover:text-white">Supabase Auth 연동 이슈 해결 기록</span>
-                    <span class="text-[11px] mono text-gray-600">FEB 18, 2026</span>
-                </div>
-                <div class="flex items-center justify-between py-4 border-b border-main hover:bg-[#111111] px-4 rounded group transition-all">
-                    <span class="text-sm font-medium text-gray-300 group-hover:text-white">Cloudflare Pages 배포 자동화 가이드</span>
-                    <span class="text-[11px] mono text-gray-600">FEB 15, 2026</span>
-                </div>
-            </div>
-        </section>
     </main>
 
-    <footer class="max-w-5xl mx-auto px-6 py-20 border-t border-main mt-12">
-        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-            <span class="text-[11px] mono text-gray-600 uppercase tracking-widest">© 2026 Studio_X. Powered by Cloudflare.</span>
-            <div class="flex gap-6">
-                <a href="#" class="text-[11px] mono text-gray-600 hover:text-white">GitHub</a>
-                <a href="#" class="text-[11px] mono text-gray-600 hover:text-white">Twitter</a>
-            </div>
+    <footer class="max-w-5xl mx-auto px-6 py-16 border-t border-main mt-20 flex flex-col md:flex-row justify-between items-center text-gray-600">
+        <span class="text-[10px] mono uppercase tracking-[0.3em]">© 2026 PYTHAVA. All Rights Reserved.</span>
+        <div class="flex gap-10 text-[10px] mono uppercase tracking-widest font-bold">
+            <a href="https://github.com" class="hover:text-white transition-colors">Github</a>
+            <a href="#" class="hover:text-white transition-colors">Status</a>
         </div>
     </footer>
 
@@ -120,6 +112,7 @@
         const logoutBtn = document.getElementById('logout-btn');
         const userInfo = document.getElementById('user-info');
 
+        // 임시 UI 토글 로직
         loginBtn.onclick = () => {
             loginBtn.classList.add('hidden');
             userInfo.classList.remove('hidden');
