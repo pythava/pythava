@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PYTHAVA | Challenge Details</title>
+    <title>PYTHAVA | Wargame</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; overflow-y: scroll; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
-        .nav-link { transition: all 0.2s; position: relative; }
+        .nav-link { transition: all 0.2s; }
         .nav-link:hover { color: #ffffff; }
         .admin-link { opacity: 0; transition: all 0.3s; }
         .admin-link:hover { opacity: 1; color: #ef4444; }
         
-        /* 이전 디자인의 격자 포인트 계승 */
+        /* 카드 디자인 및 푼 문제 글로우 효과 */
+        .challenge-card { aspect-ratio: 3 / 1.5; transition: all 0.3s ease; border-width: 1px; cursor: pointer; }
+        .challenge-card:hover { border-color: #10b981; background-color: #064e3b20; transform: translateY(-5px); }
+        .solved-glow { border-color: #10b981 !important; box-shadow: 0 0 20px rgba(16, 185, 129, 0.15); }
+
         .content-box { background-color: #0a0a0a; border: 1px solid #1f2937; }
-        .input-field { background-color: #0f0f0f; border: 1px solid #1f2937; transition: all 0.2s; }
-        .input-field:focus { border-color: #10b981; outline: none; background-color: #111111; }
+        .input-field { background-color: #0f0f0f; border: 1px solid #1f2937; transition: all 0.2s; outline: none; }
+        .input-field:focus { border-color: #10b981; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body class="selection:bg-emerald-500/30">
@@ -31,70 +37,86 @@
             <div class="flex-1"><a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a></div>
             <div class="flex-[2] flex justify-center">
                 <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
-                    <li><a href="/wargame" class="nav-link active text-white">Wargame</a></li>
+                    <li><a href="/wargame" class="text-white">Wargame</a></li>
                     <li><a href="/blog" class="nav-link">Blog</a></li>
                     <li><a href="/tools" class="nav-link">Tools</a></li>
                     <li><a href="/admin" class="nav-link admin-link">Admin</a></li>
                 </ul>
             </div>
             <div class="flex-1 flex justify-end" id="nav-auth-section">
-                <button id="login-btn" onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 border border-main px-4 py-1.5 rounded mono">LOG IN</button>
+                <button onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 border border-main px-4 py-1.5 rounded mono">LOG IN</button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-6 py-16">
+    <main id="list-view" class="max-w-6xl mx-auto px-6 py-16">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic uppercase">Lab_Challenges</h1>
+                <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Select your target and exploit</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <input type="text" id="search-input" placeholder="SEARCH..." class="bg-[#0f0f0f] border border-main px-4 py-2 rounded text-[11px] mono text-white w-44 outline-none focus:border-emerald-500">
+                <select id="level-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none">
+                    <option value="">ALL_LEVELS</option>
+                    <option value="Lv.1">LEVEL 01</option>
+                    <option value="Lv.2">LEVEL 02</option>
+                    <option value="Lv.3">LEVEL 03</option>
+                    <option value="Lv.4">LEVEL 04</option>
+                    <option value="Lv.5">LEVEL 05</option>
+                </select>
+                <select id="category-filter" class="bg-[#0f0f0f] border border-main px-3 py-2 rounded text-[11px] mono text-gray-400 outline-none">
+                    <option value="">ALL_CATS</option>
+                    <option value="Pwn">PWN</option><option value="Rev">REV</option><option value="Web">WEB</option>
+                    <option value="Crypto">CRYPTO</option><option value="Forensic">FORENSIC</option><option value="Misc">MISC</option>
+                </select>
+            </div>
+        </div>
+        <div id="challenge-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            </div>
+    </main>
+
+    <main id="detail-view" class="max-w-6xl mx-auto px-6 py-16 hidden">
+        <button onclick="showList()" class="text-[10px] mono text-gray-600 hover:text-emerald-500 mb-8 uppercase tracking-widest">← Back to List</button>
+        
         <div class="mb-12">
             <div class="flex items-center gap-4 mb-4">
-                <span id="v-category" class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase tracking-widest italic">CATEGORY</span>
-                <span id="v-level" class="text-[10px] mono text-gray-600 font-bold uppercase tracking-widest">LEVEL</span>
+                <span id="v-category" class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase italic">CATEGORY</span>
+                <span id="v-level" class="text-[10px] mono text-gray-600 font-bold">LEVEL</span>
             </div>
-            <h1 id="v-title" class="text-5xl font-extrabold text-white tracking-tighter italic mb-4">LOADING_CHALLENGE...</h1>
+            <h1 id="v-title" class="text-5xl font-extrabold text-white tracking-tighter italic mb-4 uppercase">TITLE</h1>
             <div class="h-px w-20 bg-emerald-500"></div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
-            
             <div class="lg:col-span-2 space-y-8">
-                <div class="content-box p-10 min-h-[400px]">
+                <div class="content-box p-10 min-h-[350px]">
                     <h2 class="text-[11px] mono text-gray-500 uppercase tracking-[0.3em] mb-8 font-bold">// DESCRIPTION</h2>
-                    <div id="v-content" class="text-gray-400 leading-relaxed text-lg whitespace-pre-wrap font-medium">
-                        지정한 문제가 존재하지 않거나 데이터를 불러오는 중입니다.
-                    </div>
+                    <div id="v-content" class="text-gray-400 leading-relaxed text-lg whitespace-pre-wrap font-medium">Content...</div>
                 </div>
-
                 <div id="file-section" class="hidden">
-                    <a id="download-link" href="#" target="_blank" class="inline-flex items-center gap-3 px-6 py-4 content-box hover:border-emerald-500 transition-all group">
-                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        <span class="text-xs mono font-bold text-white tracking-widest uppercase">Download_Challenge_Files</span>
+                    <a id="download-link" href="#" target="_blank" class="inline-flex items-center gap-3 px-5 py-3 content-box hover:border-emerald-500 transition-all">
+                        <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="text-[11px] mono font-bold text-white uppercase tracking-widest">Download Attachment</span>
                     </a>
                 </div>
             </div>
-
             <div class="space-y-6">
                 <div class="content-box p-8">
-                    <h4 class="text-[10px] mono text-gray-600 uppercase tracking-widest mb-6 font-bold">Information</h4>
-                    <div class="space-y-4">
-                        <div class="flex justify-between border-b border-main pb-3">
-                            <span class="text-[11px] mono text-gray-500">AWARD</span>
-                            <span id="v-points" class="text-sm font-black text-emerald-500 mono">0 PT</span>
-                        </div>
-                        <div class="flex justify-between border-b border-main pb-3">
-                            <span class="text-[11px] mono text-gray-500">SOLVERS</span>
-                            <span id="v-solvers" class="text-sm font-bold text-white mono text-right">0</span>
-                        </div>
+                    <h4 class="text-[10px] mono text-gray-600 uppercase tracking-widest mb-6 font-bold">Lab Status</h4>
+                    <div class="flex justify-between border-b border-main pb-3 mb-4">
+                        <span class="text-[11px] mono text-gray-500">AWARD</span>
+                        <span id="v-points" class="text-sm font-black text-emerald-500 mono">0 PT</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-[11px] mono text-gray-500">SOLVERS</span>
+                        <span id="v-solvers" class="text-sm font-bold text-white mono">0</span>
                     </div>
                 </div>
-
-                <div class="content-box p-8 border-emerald-900/50">
+                <div class="content-box p-8">
                     <h4 class="text-[10px] mono text-emerald-500 uppercase tracking-widest mb-6 font-bold">Authentication</h4>
-                    <div class="space-y-4">
-                        <input type="text" id="flag-input" placeholder="FLAG{...}" 
-                            class="w-full px-4 py-3 rounded input-field text-sm text-white mono">
-                        <button id="submit-btn" class="w-full bg-white text-black py-4 rounded font-black text-[11px] uppercase tracking-[0.2em] hover:bg-emerald-500 hover:text-white transition-all">
-                            Submit_Flag
-                        </button>
-                    </div>
+                    <input type="text" id="flag-input" placeholder="FLAG{...}" class="w-full px-4 py-3 rounded input-field text-sm text-white mono mb-4">
+                    <button id="submit-btn" class="w-full bg-white text-black py-4 rounded font-black text-[11px] uppercase tracking-widest hover:bg-emerald-500 hover:text-white transition-all">Submit_Flag</button>
                 </div>
             </div>
         </div>
@@ -104,15 +126,13 @@
         const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
         const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
+        let currentChallenge = null;
 
-        const params = new URLSearchParams(window.location.search);
-        const challengeId = params.get('id');
-
-        async function init() {
-            // 1. 세션 체크
+        // 1. 유저 인증 확인
+        async function checkAuth() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) {
-                const { data: profile } = await _supabase.from('profiles').select('nickname, points').eq('id', user.id).single();
+                const { data: profile } = await _supabase.from('profiles').select('*').eq('id', user.id).single();
                 document.getElementById('nav-auth-section').innerHTML = `
                     <div class="flex items-center gap-4 mono text-[11px]">
                         <div class="text-right"><div class="text-white font-bold">${profile.nickname.toUpperCase()}</div><div class="text-emerald-500">${profile.points} PT</div></div>
@@ -120,49 +140,109 @@
                     </div>`;
                 document.getElementById('logout-btn').onclick = async () => { await _supabase.auth.signOut(); location.reload(); };
             }
-
-            // 2. 데이터 불러오기
-            if(!challengeId) return;
-            const { data: chal } = await _supabase.from('challenges').select('*').eq('id', challengeId).single();
-
-            if (chal) {
-                document.getElementById('v-title').innerText = chal.title.toUpperCase();
-                document.getElementById('v-category').innerText = chal.category;
-                document.getElementById('v-level').innerText = chal.level;
-                document.getElementById('v-content').innerText = chal.content;
-                document.getElementById('v-solvers').innerText = chal.solvers || 0;
-                document.getElementById('v-points').innerText = `${chal.points} PT`;
-
-                if (chal.file_url) {
-                    document.getElementById('file-section').classList.remove('hidden');
-                    document.getElementById('download-link').href = chal.file_url;
-                }
-            }
+            return user;
         }
 
-        // 3. 플래그 제출
+        // 2. 리스트 불러오기 (SPA 방식)
+        async function fetchChallenges() {
+            const user = await checkAuth();
+            const search = document.getElementById('search-input').value;
+            const level = document.getElementById('level-filter').value;
+            const category = document.getElementById('category-filter').value;
+
+            // 유저가 푼 문제 확인
+            let solvedIds = [];
+            if (user) {
+                const { data: logs } = await _supabase.from('solvers_log').select('challenge_id').eq('user_id', user.id);
+                solvedIds = logs ? logs.map(l => l.challenge_id) : [];
+            }
+
+            let query = _supabase.from('challenges').select('*').order('created_at', { ascending: false });
+            if (search) query = query.ilike('title', `%${search}%`);
+            if (level) query = query.eq('level', level);
+            if (category) query = query.eq('category', category);
+
+            const { data: challenges } = await query;
+            const grid = document.getElementById('challenge-grid');
+            grid.innerHTML = challenges.map(item => {
+                const isSolved = solvedIds.includes(item.id);
+                return `
+                <div onclick="showDetail('${item.id}')" class="challenge-card border border-main bg-[#0a0a0a] p-8 flex flex-col justify-between group ${isSolved ? 'solved-glow' : ''}">
+                    <div>
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="text-[10px] mono font-bold px-2 py-0.5 border ${isSolved ? 'border-emerald-500 bg-emerald-500/10' : 'border-emerald-500/30'} text-emerald-500 uppercase tracking-widest">
+                                ${isSolved ? 'SOLVED' : item.category}
+                            </span>
+                            <span class="text-[10px] mono text-gray-600 font-bold">${item.level}</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight uppercase">${item.title}</h3>
+                    </div>
+                    <div class="flex justify-between items-end border-t border-main pt-4 mt-4">
+                        <span class="text-[9px] mono text-gray-700 uppercase tracking-widest">Solvers: ${item.solvers || 0}</span>
+                        <span class="text-sm font-black text-white mono">${item.points} PT</span>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // 3. 상세보기 전환
+        async function showDetail(id) {
+            const { data: chal } = await _supabase.from('challenges').select('*').eq('id', id).single();
+            if (!chal) return;
+            currentChallenge = chal;
+
+            document.getElementById('list-view').classList.add('hidden');
+            document.getElementById('detail-view').classList.remove('hidden');
+
+            document.getElementById('v-title').innerText = chal.title;
+            document.getElementById('v-category').innerText = chal.category;
+            document.getElementById('v-level').innerText = chal.level;
+            document.getElementById('v-content').innerText = chal.content;
+            document.getElementById('v-points').innerText = `${chal.points} PT`;
+            document.getElementById('v-solvers').innerText = chal.solvers || 0;
+
+            if (chal.file_url) {
+                document.getElementById('file-section').classList.remove('hidden');
+                document.getElementById('download-link').href = chal.file_url;
+            } else {
+                document.getElementById('file-section').classList.add('hidden');
+            }
+            window.scrollTo(0,0);
+        }
+
+        function showList() {
+            document.getElementById('detail-view').classList.add('hidden');
+            document.getElementById('list-view').classList.remove('hidden');
+            fetchChallenges();
+        }
+
+        // 4. Flag 제출
         document.getElementById('submit-btn').onclick = async () => {
-            const flag = document.getElementById('flag-input').value;
             const { data: { user } } = await _supabase.auth.getUser();
             if (!user) return alert("LOGIN_REQUIRED");
 
-            const { data: chal } = await _supabase.from('challenges').select('*').eq('id', challengeId).single();
+            const input = document.getElementById('flag-input').value;
+            if (input === currentChallenge.flag) {
+                const { data: already } = await _supabase.from('solvers_log').select('*').eq('user_id', user.id).eq('challenge_id', currentChallenge.id).single();
+                if (already) return alert("ALREADY_SOLVED");
 
-            if (flag === chal.flag) {
-                alert("ACCESS_GRANTED: Correct Flag.");
-                
-                // 점수 업데이트 로직
-                const { data: profile } = await _supabase.from('profiles').select('points').eq('id', user.id).single();
-                await _supabase.from('profiles').update({ points: profile.points + chal.points }).eq('id', user.id);
-                await _supabase.from('challenges').update({ solvers: (chal.solvers || 0) + 1 }).eq('id', challengeId);
-                
-                location.reload();
+                await _supabase.from('solvers_log').insert([{ user_id: user.id, challenge_id: currentChallenge.id }]);
+                const { data: p } = await _supabase.from('profiles').select('points').eq('id', user.id).single();
+                await _supabase.from('profiles').update({ points: p.points + currentChallenge.points }).eq('id', user.id);
+                await _supabase.from('challenges').update({ solvers: (currentChallenge.solvers || 0) + 1 }).eq('id', currentChallenge.id);
+
+                alert("CORRECT! ACCESS GRANTED.");
+                showList();
             } else {
-                alert("ACCESS_DENIED: Invalid Flag.");
+                alert("WRONG FLAG. ACCESS DENIED.");
             }
         };
 
-        init();
+        // 초기화
+        document.getElementById('search-input').addEventListener('input', fetchChallenges);
+        document.getElementById('level-filter').addEventListener('change', fetchChallenges);
+        document.getElementById('category-filter').addEventListener('change', fetchChallenges);
+        fetchChallenges();
     </script>
 </body>
 </html>
