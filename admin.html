@@ -13,12 +13,17 @@
         .border-main { border-color: #1f2937; }
         .sidebar-item { transition: all 0.2s; border-left: 2px solid transparent; color: #64748b; }
         .sidebar-item.active { border-left: 2px solid #3b82f6; background-color: #0f172a; color: white; }
-        .input-field { background-color: #0a0a0a; border: 1px solid #1f2937; color: white; padding: 10px 14px; border-radius: 6px; outline: none; font-size: 14px; transition: border 0.2s; }
-        .input-field:focus { border-color: #3b82f6; }
-        .admin-table th { font-family: 'JetBrains Mono'; font-size: 11px; text-transform: uppercase; color: #475569; padding: 12px; text-align: left; border-bottom: 1px solid #1f2937; }
-        .admin-table td { padding: 12px; border-bottom: 1px solid #111827; font-size: 13px; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 10px; }
+        
+        /* 입력창 디자인 강화 */
+        .input-field { background-color: #0a0a0a; border: 1px solid #1f2937; color: white; padding: 14px; border-radius: 8px; outline: none; font-size: 15px; transition: all 0.2s; width: 100%; }
+        .input-field:focus { border-color: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.1); }
+        
+        /* 점 3개 메뉴 관련 */
+        .menu-dropdown { display: none; position: absolute; right: 0; top: 30px; background: #111; border: 1px solid #333; border-radius: 4px; z-index: 100; min-width: 100px; }
+        .menu-container:hover .more-btn { opacity: 1; }
+        .more-btn { opacity: 0; transition: opacity 0.2s; }
+
+        .hidden { display: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -33,74 +38,81 @@
     <div class="flex flex-1 max-w-7xl mx-auto w-full">
         <aside class="w-64 border-r border-main p-6 hidden md:block">
             <nav class="space-y-1">
-                <button onclick="showSection('user')" id="menu-user" class="sidebar-item active w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3">01. USER_MGMT</button>
-                <button onclick="showSection('blog')" id="menu-blog" class="sidebar-item w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3">02. BLOG_MGMT</button>
-                <button onclick="showSection('wargame')" id="menu-wargame" class="sidebar-item w-full text-left px-4 py-3 text-sm font-bold flex items-center gap-3">03. WAR_MGMT</button>
+                <button onclick="showSection('user')" id="menu-user" class="sidebar-item active w-full text-left px-4 py-4 text-sm font-bold flex items-center gap-3">01. USER_MGMT</button>
+                <button onclick="showSection('blog')" id="menu-blog" class="sidebar-item w-full text-left px-4 py-4 text-sm font-bold flex items-center gap-3">02. BLOG_MGMT</button>
+                <button onclick="showSection('wargame')" id="menu-wargame" class="sidebar-item w-full text-left px-4 py-4 text-sm font-bold flex items-center gap-3">03. WAR_MGMT</button>
             </nav>
         </aside>
 
         <main class="flex-1 p-8">
-            
             <section id="section-user">
                 <h2 class="text-sm font-bold text-gray-500 mb-6 mono uppercase tracking-widest">// User_Database</h2>
-                <div class="border border-main rounded-lg overflow-hidden bg-[#0a0a0a]">
-                    <table class="w-full admin-table">
-                        <thead><tr><th>Identifier</th><th>Joined</th><th>Status</th><th>Control</th></tr></thead>
-                        <tbody id="user-list"></tbody>
-                    </table>
-                </div>
+                <div id="user-list-container" class="grid grid-cols-1 gap-4"></div>
             </section>
 
             <section id="section-blog" class="hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="border border-main p-6 rounded-xl bg-[#0a0a0a]">
-                        <h3 class="text-xs font-bold text-blue-500 mb-6 mono uppercase tracking-widest">Create New Post</h3>
-                        <form id="blog-form" class="flex flex-col gap-4">
-                            <div class="flex gap-3">
-                                <select id="blog-category" class="input-field flex-1">
+                <div class="grid grid-cols-1 xl:grid-cols-5 gap-10">
+                    <div class="xl:col-span-3 border border-main p-8 rounded-xl bg-[#0a0a0a]">
+                        <h3 id="blog-form-title" class="text-xs font-bold text-blue-500 mb-8 mono uppercase tracking-[0.2em]">Create New Post</h3>
+                        <form id="blog-form" class="space-y-6">
+                            <input type="hidden" id="blog-id">
+                            <div class="grid grid-cols-2 gap-4">
+                                <select id="blog-category" class="input-field">
                                     <option value="Write-up">Write-up</option>
                                     <option value="Log">Log</option>
+                                    <option value="Notice">Notice</option>
                                 </select>
-                                <input type="text" id="blog-author" placeholder="Author" class="input-field w-32" value="Admin">
+                                <input type="text" id="blog-author" class="input-field" value="Admin">
                             </div>
-                            <input type="text" id="blog-title" placeholder="Post Title" class="input-field" required>
+                            <input type="text" id="blog-title" placeholder="Post Title" class="input-field py-4 text-lg font-bold" required>
                             <input type="text" id="blog-tags" placeholder="Tags (e.g. #pwn #web)" class="input-field">
-                            <textarea id="blog-content" placeholder="Content (Markdown/HTML)" rows="10" class="input-field" required></textarea>
-                            <button type="submit" class="bg-blue-600 text-white py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-blue-500 transition-all">Publish</button>
+                            <textarea id="blog-content" placeholder="Content (Markdown supported)" rows="15" class="input-field" required></textarea>
+                            <button type="submit" id="blog-submit-btn" class="w-full bg-blue-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-blue-500">Publish Post</button>
                         </form>
                     </div>
-                    <div class="space-y-4">
+                    <div class="xl:col-span-2 space-y-4">
                         <h3 class="text-xs font-bold text-gray-500 mb-4 mono uppercase">Archive List</h3>
-                        <div id="blog-list" class="space-y-2 max-h-[600px] overflow-y-auto pr-2"></div>
+                        <div id="blog-list" class="space-y-3"></div>
                     </div>
                 </div>
             </section>
 
             <section id="section-wargame" class="hidden">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="border border-main p-6 rounded-xl bg-[#0a0a0a]">
-                        <h3 class="text-xs font-bold text-emerald-500 mb-6 mono uppercase tracking-widest">Deploy Challenge</h3>
-                        <form id="wargame-form" class="flex flex-col gap-4">
-                            <input type="text" id="wg-title" placeholder="Challenge Title" class="input-field" required>
-                            <input type="text" id="wg-tags" placeholder="Tags (e.g. #rev #crypto)" class="input-field">
-                            <select id="wg-difficulty" class="input-field">
-                                <option value="1">Level 1 - Easy</option>
-                                <option value="2">Level 2 - Normal</option>
-                                <option value="3">Level 3 - Medium</option>
-                                <option value="4">Level 4 - Hard</option>
-                                <option value="5">Level 5 - Insane</option>
-                            </select>
-                            <textarea id="wg-desc" placeholder="Challenge Description" rows="4" class="input-field" required></textarea>
+                <div class="grid grid-cols-1 xl:grid-cols-5 gap-10">
+                    <div class="xl:col-span-3 border border-main p-8 rounded-xl bg-[#0a0a0a]">
+                        <h3 id="wg-form-title" class="text-xs font-bold text-emerald-500 mb-8 mono uppercase tracking-[0.2em]">Deploy Challenge</h3>
+                        <form id="wargame-form" class="space-y-6">
+                            <input type="hidden" id="wg-id">
+                            <input type="text" id="wg-title" placeholder="Challenge Title" class="input-field py-4 text-lg font-bold" required>
                             <div class="grid grid-cols-2 gap-4">
-                                <input type="text" id="wg-flag" placeholder="Flag: PT{...}" class="input-field" required>
-                                <input type="number" id="wg-points" placeholder="Points" class="input-field" required>
+                                <select id="wg-category" class="input-field">
+                                    <option value="Pwn">Pwnable</option>
+                                    <option value="Rev">Reversing</option>
+                                    <option value="Web">Web</option>
+                                    <option value="Crypto">Cryptography</option>
+                                    <option value="Forensic">Forensic</option>
+                                    <option value="Misc">Misc</option>
+                                </select>
+                                <select id="wg-difficulty" class="input-field">
+                                    <option value="Lv.1">LEVEL 01</option>
+                                    <option value="Lv.2">LEVEL 02</option>
+                                    <option value="Lv.3">LEVEL 03</option>
+                                    <option value="Lv.4">LEVEL 04</option>
+                                    <option value="Lv.5">LEVEL 05</option>
+                                </select>
                             </div>
-                            <button type="submit" class="bg-emerald-600 text-white py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-emerald-500 transition-all">Add Challenge</button>
+                            <textarea id="wg-desc" placeholder="Challenge Description" rows="8" class="input-field" required></textarea>
+                            <input type="text" id="wg-file-url" placeholder="Attachment URL (Google Drive / Direct Link)" class="input-field">
+                            <div class="grid grid-cols-2 gap-4">
+                                <input type="text" id="wg-flag" placeholder="FLAG{...}" class="input-field" required>
+                                <input type="number" id="wg-points" placeholder="Points (e.g. 500)" class="input-field" required>
+                            </div>
+                            <button type="submit" id="wg-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-emerald-500">Deploy Challenge</button>
                         </form>
                     </div>
-                    <div class="space-y-4">
+                    <div class="xl:col-span-2 space-y-4">
                         <h3 class="text-xs font-bold text-gray-500 mb-4 mono uppercase">Live Challenges</h3>
-                        <div id="wargame-list" class="space-y-2 max-h-[600px] overflow-y-auto pr-2"></div>
+                        <div id="wargame-list" class="space-y-3"></div>
                     </div>
                 </div>
             </section>
@@ -111,6 +123,17 @@
         const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
         const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        // 1. 접근 제어 및 초기화
+        async function init() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (!user || user.email !== 'pythava1103@gmail.com') {
+                alert("ACCESS DENIED: Admin privileges required.");
+                location.href = '/';
+                return;
+            }
+            showSection('user');
+        }
 
         function showSection(name) {
             ['user', 'blog', 'wargame'].forEach(s => {
@@ -125,100 +148,186 @@
             if(name === 'user') fetchUsers();
         }
 
-        // --- BLOG LOGIC ---
+        // --- 공통: 드롭다운 메뉴 렌더링 함수 ---
+        function renderMoreMenu(table, id, dataJson) {
+            const encodedData = btoa(encodeURIComponent(JSON.stringify(dataJson)));
+            return `
+                <div class="relative menu-container">
+                    <button onclick="toggleMenu('menu-${id}')" class="more-btn text-gray-500 hover:text-white p-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path></svg>
+                    </button>
+                    <div id="menu-${id}" class="menu-dropdown shadow-xl overflow-hidden border border-main">
+                        <button onclick="editMode('${table}', '${encodedData}')" class="w-full text-left px-4 py-2 text-xs hover:bg-blue-600 text-gray-300">EDIT</button>
+                        <button onclick="deleteData('${table}', '${id}')" class="w-full text-left px-4 py-2 text-xs hover:bg-red-600 text-gray-300">DELETE</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleMenu = (menuId) => {
+            const el = document.getElementById(menuId);
+            const isVisible = el.style.display === 'block';
+            document.querySelectorAll('.menu-dropdown').forEach(d => d.style.display = 'none');
+            el.style.display = isVisible ? 'none' : 'block';
+        };
+
+        // --- BLOG 제어 ---
         document.getElementById('blog-form').onsubmit = async (e) => {
             e.preventDefault();
-            const { error } = await _supabase.from('posts').insert([{
+            const id = document.getElementById('blog-id').value;
+            const payload = {
                 title: document.getElementById('blog-title').value,
                 content: document.getElementById('blog-content').value,
                 tags: document.getElementById('blog-tags').value,
                 category: document.getElementById('blog-category').value,
                 author: document.getElementById('blog-author').value
-            }]);
-            if(error) alert(error.message); else { alert("Post Published!"); fetchBlogs(); e.target.reset(); }
+            };
+
+            let res;
+            if (id) res = await _supabase.from('posts').update(payload).eq('id', id);
+            else res = await _supabase.from('posts').insert([payload]);
+
+            if(res.error) alert(res.error.message);
+            else { 
+                alert(id ? "Post Updated!" : "Post Published!"); 
+                resetBlogForm();
+                fetchBlogs(); 
+            }
         };
 
         async function fetchBlogs() {
             const { data } = await _supabase.from('posts').select('*').order('id', {ascending: false});
             document.getElementById('blog-list').innerHTML = data.map(p => `
-                <div class="border border-main p-4 rounded bg-[#0a0a0a] flex justify-between items-center group">
-                    <div>
-                        <span class="text-[10px] mono text-blue-500 font-bold uppercase">[${p.category}]</span>
-                        <h4 class="text-white text-sm font-bold">${p.title}</h4>
-                        <p class="text-[10px] text-gray-600 mono">by ${p.author} | ${p.tags}</p>
+                <div class="border border-main p-5 rounded-lg bg-[#0a0a0a] flex justify-between items-center group relative hover:border-blue-500/50 transition-all">
+                    <div class="flex-1">
+                        <span class="text-[9px] mono text-blue-500 font-bold uppercase tracking-widest">[${p.category}]</span>
+                        <h4 class="text-white text-sm font-bold mt-1">${p.title}</h4>
                     </div>
-                    <button onclick="deleteData('posts', ${p.id})" class="text-gray-700 hover:text-red-500 px-2">×</button>
+                    ${renderMoreMenu('posts', p.id, p)}
                 </div>
             `).join('');
         }
 
-        // --- WARGAME LOGIC ---
+        // --- WARGAME 제어 ---
         document.getElementById('wargame-form').onsubmit = async (e) => {
             e.preventDefault();
-            const { error } = await _supabase.from('challenges').insert([{
+            const id = document.getElementById('wg-id').value;
+            const payload = {
                 title: document.getElementById('wg-title').value,
-                tags: document.getElementById('wg-tags').value,
-                difficulty: parseInt(document.getElementById('wg-difficulty').value),
-                description: document.getElementById('wg-desc').value,
+                category: document.getElementById('wg-category').value,
+                level: document.getElementById('wg-difficulty').value,
+                content: document.getElementById('wg-desc').value,
                 flag: document.getElementById('wg-flag').value,
-                points: parseInt(document.getElementById('wg-points').value)
-            }]);
-            if(error) alert(error.message); else { alert("Challenge Deployed!"); fetchWargames(); e.target.reset(); }
+                points: parseInt(document.getElementById('wg-points').value),
+                file_url: document.getElementById('wg-file-url').value
+            };
+
+            let res;
+            if (id) res = await _supabase.from('challenges').update(payload).eq('id', id);
+            else res = await _supabase.from('challenges').insert([payload]);
+
+            if(res.error) alert(res.error.message);
+            else { 
+                alert(id ? "Challenge Updated!" : "Challenge Deployed!"); 
+                resetWgForm();
+                fetchWargames(); 
+            }
         };
 
         async function fetchWargames() {
             const { data } = await _supabase.from('challenges').select('*').order('id', {ascending: false});
             document.getElementById('wargame-list').innerHTML = data.map(wg => `
-                <div class="border border-main p-4 rounded bg-[#0a0a0a] flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] mono text-emerald-500 font-bold">LV.${wg.difficulty} | SOLVERS: ${wg.solvers_count || 0}</p>
-                        <h4 class="text-white text-sm font-bold">${wg.title}</h4>
-                        <p class="text-[10px] text-gray-600 mono">${wg.tags}</p>
+                <div class="border border-main p-5 rounded-lg bg-[#0a0a0a] flex justify-between items-center group relative hover:border-emerald-500/50 transition-all">
+                    <div class="flex-1">
+                        <p class="text-[9px] mono text-emerald-500 font-bold uppercase tracking-widest">${wg.level} | ${wg.category}</p>
+                        <h4 class="text-white text-sm font-bold mt-1">${wg.title}</h4>
                     </div>
-                    <button onclick="deleteData('challenges', ${wg.id})" class="text-gray-700 hover:text-red-500 px-2">×</button>
+                    ${renderMoreMenu('challenges', wg.id, wg)}
                 </div>
             `).join('');
         }
 
-        // --- COMMON LOGIC ---
-        async function deleteData(table, id) {
-            if(confirm(`Remove from ${table}?`)) {
+        // --- USER 제어 ---
+        async function fetchUsers() {
+            const { data } = await _supabase.from('profiles').select('*').order('points', {ascending: false});
+            document.getElementById('user-list-container').innerHTML = data.map(u => `
+                <div class="border border-main p-4 rounded bg-[#0a0a0a] flex justify-between items-center group">
+                    <div>
+                        <span class="text-white font-bold text-sm uppercase">${u.nickname}</span>
+                        <span class="text-emerald-500 text-xs mono ml-4">${u.points} PT</span>
+                    </div>
+                    ${renderMoreMenu('profiles', u.id, u)}
+                </div>
+            `).join('');
+        }
+
+        // --- 데이터 수정 모드 ---
+        window.editMode = (table, encodedData) => {
+            const data = JSON.parse(decodeURIComponent(atob(encodedData)));
+            if (table === 'posts') {
+                document.getElementById('blog-id').value = data.id;
+                document.getElementById('blog-title').value = data.title;
+                document.getElementById('blog-content').value = data.content;
+                document.getElementById('blog-category').value = data.category;
+                document.getElementById('blog-tags').value = data.tags;
+                document.getElementById('blog-form-title').innerText = "// Edit Mode (ID: " + data.id + ")";
+                document.getElementById('blog-submit-btn').innerText = "Update Post";
+                document.getElementById('blog-submit-btn').classList.replace('bg-blue-600', 'bg-orange-600');
+            } else if (table === 'challenges') {
+                document.getElementById('wg-id').value = data.id;
+                document.getElementById('wg-title').value = data.title;
+                document.getElementById('wg-category').value = data.category;
+                document.getElementById('wg-difficulty').value = data.level;
+                document.getElementById('wg-desc').value = data.content;
+                document.getElementById('wg-flag').value = data.flag;
+                document.getElementById('wg-points').value = data.points;
+                document.getElementById('wg-file-url').value = data.file_url || '';
+                document.getElementById('wg-form-title').innerText = "// Edit Mode (ID: " + data.id + ")";
+                document.getElementById('wg-submit-btn').innerText = "Update Challenge";
+                document.getElementById('wg-submit-btn').classList.replace('bg-emerald-600', 'bg-orange-600');
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        // --- 데이터 삭제 ---
+        window.deleteData = async (table, id) => {
+            if(confirm(`[WARNING] Are you sure you want to delete ID: ${id} from ${table}? This cannot be undone.`)) {
                 const { error } = await _supabase.from(table).delete().eq('id', id);
                 if(error) alert(error.message);
-                table === 'posts' ? fetchBlogs() : fetchWargames();
+                else {
+                    alert("Deleted successfully.");
+                    if(table === 'posts') fetchBlogs();
+                    else if(table === 'challenges') fetchWargames();
+                    else fetchUsers();
+                }
             }
+        };
+
+        function resetBlogForm() {
+            document.getElementById('blog-form').reset();
+            document.getElementById('blog-id').value = '';
+            document.getElementById('blog-form-title').innerText = "Create New Post";
+            document.getElementById('blog-submit-btn').innerText = "Publish Post";
+            document.getElementById('blog-submit-btn').className = "w-full bg-blue-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-blue-500";
+        }
+
+        function resetWgForm() {
+            document.getElementById('wargame-form').reset();
+            document.getElementById('wg-id').value = '';
+            document.getElementById('wg-form-title').innerText = "Deploy Challenge";
+            document.getElementById('wg-submit-btn').innerText = "Deploy Challenge";
+            document.getElementById('wg-submit-btn').className = "w-full bg-emerald-600 text-white py-4 rounded-lg font-black text-sm uppercase tracking-widest hover:bg-emerald-500";
         }
 
         function handleLogout() { _supabase.auth.signOut().then(() => location.href='/login'); }
         
-        // 초기 로딩
-        showSection('user');
-        // 페이지가 열리자마자 실행되어야 함
-        async function init() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            const navAuth = document.getElementById('nav-auth-section');
-        
-            if (user) {
-                // 유저 정보가 있으면 'LOG IN' 버튼 대신 닉네임 표시
-                const { data: profile } = await _supabase
-                    .from('profiles')
-                    .select('nickname')
-                    .eq('id', user.id)
-                    .single();
-        
-                navAuth.innerHTML = `
-                    <div class="flex items-center gap-4">
-                        <span class="text-white text-[11px] font-bold mono">${profile?.nickname || 'USER'}</span>
-                        <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-white underline">LOGOUT</button>
-                    </div>
-                `;
-        
-                document.getElementById('logout-btn').onclick = async () => {
-                    await _supabase.auth.signOut();
-                    location.reload();
-                };
+        // 클릭 시 메뉴 닫기
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.menu-container')) {
+                document.querySelectorAll('.menu-dropdown').forEach(d => d.style.display = 'none');
             }
-        }
+        });
+
         init();
     </script>
 </body>
