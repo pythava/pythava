@@ -5,122 +5,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
-            background-color: #000; 
+            background-color: #080808; 
             color: #d1d5db;
+            padding-top: 64px;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 모든 라운딩 제거 (Sharp Edge) */
-        * { border-radius: 0 !important; }
+        /* 1. 너무 각지지 않게, 미세한 곡률 적용 (Soft-Edge) */
+        .soft-edge { border-radius: 8px; }
+        .btn-edge { border-radius: 6px; }
 
-        /* 카테고리 버튼 - 각진 스타일 */
+        /* 내비게이션 바 */
+        nav {
+            border-bottom: 1px solid #1a1a1a;
+            background-color: rgba(8, 8, 8, 0.85);
+            backdrop-filter: blur(12px);
+        }
+
+        .nav-link {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #94a3b8;
+            transition: all 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { color: #3b82f6; }
+
+        /* 카테고리 버튼 - 부드러운 사각형 */
         .cat-btn {
             padding: 8px 20px;
-            background: #000;
-            border: 1px solid #1f2937;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            transition: all 0.2s;
-            color: #6b7280;
+            background: #111;
+            border: 1px solid #222;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #94a3b8;
         }
         .cat-btn.active {
-            background: #fff;
-            color: #000;
-            border-color: #fff;
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
         }
         .cat-btn:hover:not(.active) {
-            border-color: #3b82f6;
+            border-color: #444;
             color: #fff;
         }
 
-        /* 블로그 카드 - 날카로운 레이아웃 */
+        /* 블로그 카드 - 미세한 곡률 + 은은한 배경 */
         .blog-card {
-            background: #050505;
-            border: 1px solid #111;
+            background: #0f0f0f;
+            border: 1px solid #1a1a1a;
             padding: 2rem;
-            transition: all 0.2s;
+            transition: all 0.3s ease;
             cursor: pointer;
-            border-left: 4px solid #111; /* 포인트 라인 */
         }
         .blog-card:hover {
-            border-color: #3b82f6;
-            border-left-color: #3b82f6;
-            background: #0a0a0a;
+            border-color: #333;
+            background: #141414;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 검색창 - 터미널 스타일 */
+        /* 검색창 - 모던한 마감 */
+        .search-container {
+            background: #111;
+            border: 1px solid #222;
+            transition: border-color 0.2s;
+        }
+        .search-container:focus-within {
+            border-color: #3b82f6;
+        }
         .search-input {
-            background: #000;
-            border: 1px solid #1f2937;
-            padding: 1rem 1.5rem;
+            background: transparent;
             width: 100%;
             outline: none;
             color: #fff;
-        }
-        .search-input:focus {
-            border-color: #3b82f6;
+            padding: 1rem;
         }
 
-        /* 글쓰기 버튼 - 각진 박스 */
+        /* 플로팅 버튼 */
         .write-btn {
             position: fixed;
             bottom: 40px;
             right: 40px;
             background: #3b82f6;
             color: white;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 16px 24px;
             z-index: 100;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-weight: 900;
+            font-weight: 700;
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
+            transition: all 0.2s;
         }
         .write-btn:hover {
+            transform: translateY(-4px);
             background: #2563eb;
-            transform: translate(-4px, -4px);
-            box-shadow: 4px 4px 0px rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
-<body class="p-6 md:p-12">
+<body>
 
-    <header class="max-w-6xl mx-auto flex justify-between items-end mb-12 border-b border-gray-900 pb-8">
-        <div>
-            <h1 class="text-5xl font-black tracking-tighter mb-2 italic">ARCHIVE.txt</h1>
-            <p class="text-gray-600 mono text-xs uppercase tracking-widest">>> Public Repository for Knowledge</p>
+    <nav class="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-8 z-[1000]">
+        <div class="flex items-center gap-10">
+            <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
+            <div class="hidden md:flex gap-6">
+                <a href="/wargame.html" class="nav-link">WARGAME</a>
+                <a href="/blog.html" class="nav-link active">ARCHIVE</a>
+                <a href="/ranking.html" class="nav-link">RANKING</a>
+            </div>
         </div>
-        <a href="/index.html" class="text-[10px] mono border border-gray-800 px-4 py-2 hover:bg-white hover:text-black transition-all">CLOSE_FILE</a>
-    </header>
-
-    <div class="max-w-6xl mx-auto flex flex-wrap gap-1 mb-8">
-        <button onclick="filterPosts('All')" class="cat-btn active" id="btn-All">All</button>
-        <button onclick="filterPosts('Write-up')" class="cat-btn" id="btn-Write-up">Write-up</button>
-        <button onclick="filterPosts('Blog')" class="cat-btn" id="btn-Blog">Blog</button>
-        <button onclick="filterPosts('Announcement')" class="cat-btn" id="btn-Announcement">Announcement</button>
-        <button onclick="filterPosts('Free')" class="cat-btn" id="btn-Free">Free_Board</button>
-    </div>
-
-    <div class="max-w-6xl mx-auto mb-16">
         <div class="flex items-center gap-4">
-            <span class="mono text-blue-500 font-bold">$ search --query</span>
-            <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="..." class="search-input mono">
+            <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">
+                GUEST@SESSION
+            </div>
+            <button onclick="location.href='/login.html'" class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge hover:bg-gray-200 transition-all">SIGN_IN</button>
         </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto p-6 md:p-12">
+        <header class="mb-12">
+            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Archive</h1>
+            <p class="text-gray-500 text-sm">기록하고, 공유하며 함께 성장하는 공간입니다.</p>
+        </header>
+
+        <div class="flex flex-wrap gap-2 mb-10">
+            <button onclick="filterPosts('All')" class="cat-btn active btn-edge" id="btn-All">전체보기</button>
+            <button onclick="filterPosts('Write-up')" class="cat-btn btn-edge" id="btn-Write-up">Write-up</button>
+            <button onclick="filterPosts('Blog')" class="cat-btn btn-edge" id="btn-Blog">Blog</button>
+            <button onclick="filterPosts('Announcement')" class="cat-btn btn-edge" id="btn-Announcement">공지사항</button>
+            <button onclick="filterPosts('Free')" class="cat-btn btn-edge" id="btn-Free">자유게시판</button>
+        </div>
+
+        <div class="mb-16">
+            <div class="search-container soft-edge flex items-center px-5">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="찾으시는 글의 제목이나 태그를 입력하세요..." class="search-input text-sm">
+            </div>
+        </div>
+
+        <div id="posts-container" class="grid grid-cols-1 gap-6">
+            </div>
     </div>
 
-    <div id="posts-container" class="max-w-6xl mx-auto grid grid-cols-1 gap-4">
-        <div class="text-center py-20 opacity-50 mono">STATUS: LOADING_RESOURCES...</div>
-    </div>
-
-    <a href="/write.html" class="write-btn mono text-sm" title="CREATE_NEW_POST">
-        NEW_POST+
+    <a href="/write.html" class="write-btn btn-edge text-sm">
+        <span class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            새 글 작성하기
+        </span>
     </a>
 
     <script>
@@ -132,44 +167,47 @@
         let currentFilter = 'All';
 
         async function init() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            if (user) {
+                document.getElementById('user-badge').innerText = user.email.split('@')[0].toUpperCase();
+            }
+
             const { data, error } = await _supabase
                 .from('posts')
                 .select('*')
                 .order('created_at', { ascending: false });
 
-            if (error) {
-                document.getElementById('posts-container').innerHTML = `<div class="mono text-red-500">ERROR: FAILED_TO_FETCH</div>`;
-                return;
+            if (!error) {
+                allPosts = data || [];
+                renderPosts(allPosts);
             }
-
-            allPosts = data || [];
-            renderPosts(allPosts);
         }
 
         function renderPosts(posts) {
             const container = document.getElementById('posts-container');
             if (posts.length === 0) {
-                container.innerHTML = `<div class="py-20 text-gray-700 mono">[ NO_DATA_AVAILABLE ]</div>`;
+                container.innerHTML = `<div class="py-20 text-gray-600 text-center">작성된 게시글이 없습니다.</div>`;
                 return;
             }
 
             container.innerHTML = posts.map(p => {
-                const date = new Date(p.created_at).toISOString().split('T')[0].replace(/-/g, '.');
+                const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
                 return `
-                    <div class="blog-card" onclick="location.href='/view.html?id=${p.id}'">
-                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <span class="text-[9px] mono font-bold bg-white text-black px-2 py-0.5">${p.category}</span>
-                                    <span class="text-[10px] text-gray-600 mono">${date}</span>
+                    <div class="blog-card soft-edge" onclick="location.href='/view.html?id=${p.id}'">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">${p.category}</span>
+                                    <span class="w-1 h-1 bg-gray-700 rounded-full"></span>
+                                    <span class="text-[11px] text-gray-500 mono">${date}</span>
                                 </div>
-                                <h2 class="text-xl font-bold text-white mb-2 tracking-tight">${p.title}</h2>
-                                <p class="text-gray-500 text-xs mono line-clamp-1">${p.content.substring(0, 100)}...</p>
+                                <h2 class="text-xl font-bold text-white mb-2">${p.title}</h2>
+                                <p class="text-gray-400 text-sm line-clamp-1">${p.content.substring(0, 120)}...</p>
                             </div>
-                            <div class="flex flex-col items-end gap-2 border-l border-gray-900 pl-6 hidden md:flex">
-                                <span class="text-[10px] text-gray-500">AUTH: <span class="text-gray-300 font-bold underline">${p.author_nickname || 'Admin'}</span></span>
-                                <div class="flex gap-2 text-[10px] mono text-blue-500">
-                                    ${p.tags ? p.tags.split(' ').map(t => `<span>${t}</span>`).join('') : ''}
+                            <div class="flex flex-col md:items-end gap-2 shrink-0">
+                                <span class="text-xs text-gray-500">by <span class="text-gray-300 font-semibold">${p.author_nickname || 'Admin'}</span></span>
+                                <div class="flex gap-2">
+                                    ${p.tags ? p.tags.split(' ').map(t => `<span class="text-[10px] text-blue-400/80 mono">#${t.replace('#','')}</span>`).join('') : ''}
                                 </div>
                             </div>
                         </div>
@@ -189,9 +227,7 @@
         function searchPosts() {
             const query = document.getElementById('search-bar').value.toLowerCase();
             const filtered = allPosts.filter(p => {
-                const matchQuery = p.title.toLowerCase().includes(query) || 
-                                   p.content.toLowerCase().includes(query) || 
-                                   (p.tags && p.tags.toLowerCase().includes(query));
+                const matchQuery = p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query);
                 const matchCategory = currentFilter === 'All' || p.category === currentFilter;
                 return matchQuery && matchCategory;
             });
