@@ -5,121 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #050505; 
-            color: #e5e7eb;
+            font-family: 'Inter', sans-serif; 
+            background-color: #000; 
+            color: #d1d5db;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
         
-        /* 둥글둥글한 버튼 스타일 */
+        /* 모든 라운딩 제거 (Sharp Edge) */
+        * { border-radius: 0 !important; }
+
+        /* 카테고리 버튼 - 각진 스타일 */
         .cat-btn {
-            padding: 10px 24px;
-            border-radius: 999px;
-            background: #111;
-            border: 1px solid #222;
-            font-size: 13px;
+            padding: 8px 20px;
+            background: #000;
+            border: 1px solid #1f2937;
+            font-size: 11px;
             font-weight: 700;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: all 0.2s;
             color: #6b7280;
         }
         .cat-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+            background: #fff;
+            color: #000;
+            border-color: #fff;
         }
         .cat-btn:hover:not(.active) {
-            background: #1a1a1a;
-            border-color: #444;
+            border-color: #3b82f6;
             color: #fff;
         }
 
-        /* 블로그 카드 디자인 */
+        /* 블로그 카드 - 날카로운 레이아웃 */
         .blog-card {
-            background: #0d0d0d;
-            border: 1px solid #1a1a1a;
-            border-radius: 2rem;
-            padding: 2.5rem;
-            transition: all 0.4s;
+            background: #050505;
+            border: 1px solid #111;
+            padding: 2rem;
+            transition: all 0.2s;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            border-left: 4px solid #111; /* 포인트 라인 */
         }
         .blog-card:hover {
             border-color: #3b82f6;
-            transform: translateY(-8px);
-            background: #111;
+            border-left-color: #3b82f6;
+            background: #0a0a0a;
         }
 
-        /* 검색창 둥글게 */
+        /* 검색창 - 터미널 스타일 */
         .search-input {
-            background: #0f0f0f;
-            border: 1px solid #222;
-            border-radius: 999px;
-            padding: 1.2rem 2.5rem;
+            background: #000;
+            border: 1px solid #1f2937;
+            padding: 1rem 1.5rem;
             width: 100%;
             outline: none;
-            transition: all 0.3s;
+            color: #fff;
         }
         .search-input:focus {
             border-color: #3b82f6;
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
         }
 
-        /* 플로팅 글쓰기 버튼 */
-        .write-float {
+        /* 글쓰기 버튼 - 각진 박스 */
+        .write-btn {
             position: fixed;
             bottom: 40px;
             right: 40px;
             background: #3b82f6;
             color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
-            transition: all 0.3s;
             z-index: 100;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-weight: 900;
         }
-        .write-float:hover {
-            transform: scale(1.1) rotate(90deg);
+        .write-btn:hover {
+            background: #2563eb;
+            transform: translate(-4px, -4px);
+            box-shadow: 4px 4px 0px rgba(59, 130, 246, 0.3);
         }
     </style>
 </head>
 <body class="p-6 md:p-12">
 
-    <header class="max-w-6xl mx-auto flex justify-between items-center mb-16">
+    <header class="max-w-6xl mx-auto flex justify-between items-end mb-12 border-b border-gray-900 pb-8">
         <div>
-            <h1 class="text-4xl font-extrabold tracking-tight mb-2">ARCHIVE</h1>
-            <p class="text-gray-500 mono text-sm">Read. Write. Hack. Repeat.</p>
+            <h1 class="text-5xl font-black tracking-tighter mb-2 italic">ARCHIVE.txt</h1>
+            <p class="text-gray-600 mono text-xs uppercase tracking-widest">>> Public Repository for Knowledge</p>
         </div>
-        <a href="/index.html" class="text-xs mono border border-gray-800 px-4 py-2 rounded-full hover:bg-white hover:text-black transition-all">BACK_TO_HOME</a>
+        <a href="/index.html" class="text-[10px] mono border border-gray-800 px-4 py-2 hover:bg-white hover:text-black transition-all">CLOSE_FILE</a>
     </header>
 
-    <div class="max-w-6xl mx-auto flex flex-wrap gap-3 mb-10 justify-center">
+    <div class="max-w-6xl mx-auto flex flex-wrap gap-1 mb-8">
         <button onclick="filterPosts('All')" class="cat-btn active" id="btn-All">All</button>
         <button onclick="filterPosts('Write-up')" class="cat-btn" id="btn-Write-up">Write-up</button>
         <button onclick="filterPosts('Blog')" class="cat-btn" id="btn-Blog">Blog</button>
         <button onclick="filterPosts('Announcement')" class="cat-btn" id="btn-Announcement">Announcement</button>
-        <button onclick="filterPosts('Free')" class="cat-btn" id="btn-Free">Community</button>
+        <button onclick="filterPosts('Free')" class="cat-btn" id="btn-Free">Free_Board</button>
     </div>
 
-    <div class="max-w-3xl mx-auto mb-20">
-        <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="검색어를 입력하세요 (제목, 내용, 태그...)" class="search-input text-lg">
+    <div class="max-w-6xl mx-auto mb-16">
+        <div class="flex items-center gap-4">
+            <span class="mono text-blue-500 font-bold">$ search --query</span>
+            <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="..." class="search-input mono">
+        </div>
     </div>
 
-    <div id="posts-container" class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="col-span-full text-center py-20 opacity-50 mono">FETCHING_DATA...</div>
+    <div id="posts-container" class="max-w-6xl mx-auto grid grid-cols-1 gap-4">
+        <div class="text-center py-20 opacity-50 mono">STATUS: LOADING_RESOURCES...</div>
     </div>
 
-    <a href="/write.html" class="write-float" title="새 글 쓰기">
-        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+    <a href="/write.html" class="write-btn mono text-sm" title="CREATE_NEW_POST">
+        NEW_POST+
     </a>
 
     <script>
@@ -137,36 +138,39 @@
                 .order('created_at', { ascending: false });
 
             if (error) {
-                console.error(error);
-                document.getElementById('posts-container').innerHTML = `<div class="col-span-full text-center text-red-500">Error loading posts.</div>`;
+                document.getElementById('posts-container').innerHTML = `<div class="mono text-red-500">ERROR: FAILED_TO_FETCH</div>`;
                 return;
             }
 
-            allPosts = data;
+            allPosts = data || [];
             renderPosts(allPosts);
         }
 
         function renderPosts(posts) {
             const container = document.getElementById('posts-container');
             if (posts.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-20 text-gray-600">No posts found.</div>`;
+                container.innerHTML = `<div class="py-20 text-gray-700 mono">[ NO_DATA_AVAILABLE ]</div>`;
                 return;
             }
 
             container.innerHTML = posts.map(p => {
-                const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                const date = new Date(p.created_at).toISOString().split('T')[0].replace(/-/g, '.');
                 return `
                     <div class="blog-card" onclick="location.href='/view.html?id=${p.id}'">
-                        <div class="flex justify-between items-start mb-6">
-                            <span class="text-[10px] font-extrabold uppercase tracking-[0.2em] px-3 py-1 bg-blue-500/10 text-blue-500 rounded-full border border-blue-500/20">${p.category}</span>
-                            <span class="text-xs text-gray-600 mono">${date}</span>
-                        </div>
-                        <h2 class="text-2xl font-bold text-white mb-4 leading-tight hover:text-blue-400 transition-colors">${p.title}</h2>
-                        <p class="text-gray-400 text-sm line-clamp-2 mb-8">${p.content.replace(/[#*`]/g, '')}</p>
-                        <div class="flex justify-between items-center pt-6 border-t border-gray-900">
-                            <span class="text-xs text-gray-500">by <span class="text-gray-300 font-bold">${p.author_nickname || 'Anonymous'}</span></span>
-                            <div class="flex gap-2 text-[10px] mono text-blue-400 font-bold">
-                                ${p.tags ? p.tags.split(' ').map(t => `<span>${t}</span>`).join('') : ''}
+                        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <span class="text-[9px] mono font-bold bg-white text-black px-2 py-0.5">${p.category}</span>
+                                    <span class="text-[10px] text-gray-600 mono">${date}</span>
+                                </div>
+                                <h2 class="text-xl font-bold text-white mb-2 tracking-tight">${p.title}</h2>
+                                <p class="text-gray-500 text-xs mono line-clamp-1">${p.content.substring(0, 100)}...</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2 border-l border-gray-900 pl-6 hidden md:flex">
+                                <span class="text-[10px] text-gray-500">AUTH: <span class="text-gray-300 font-bold underline">${p.author_nickname || 'Admin'}</span></span>
+                                <div class="flex gap-2 text-[10px] mono text-blue-500">
+                                    ${p.tags ? p.tags.split(' ').map(t => `<span>${t}</span>`).join('') : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -176,11 +180,8 @@
 
         function filterPosts(category) {
             currentFilter = category;
-            
-            // 버튼 상태 업데이트
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + category).classList.add('active');
-
             const filtered = category === 'All' ? allPosts : allPosts.filter(p => p.category === category);
             renderPosts(filtered);
         }
