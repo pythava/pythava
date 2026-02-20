@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PYTHAVA | Wargame</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .border-main { border-color: #1f2937; }
+        .nav-link { transition: all 0.2s; position: relative; }
+        .nav-link:hover { color: #ffffff; }
+        .admin-link { opacity: 0; transition: all 0.3s; }
+        .admin-link:hover { opacity: 1; color: #ef4444; }
+        
+        /* 카드 비율 설정 (가로3:세로1.5 => 2:1 비율) */
+        .challenge-card {
+            aspect-ratio: 3 / 1.5;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .challenge-card:hover {
+            border-color: #3b82f6;
+            background-color: #0f172a50;
+            transform: translateY(-4px);
+        }
+
+        .filter-select {
+            background: #0f0f0f;
+            border: 1px solid #1f2937;
+            color: #9ca3af;
+            appearance: none;
+            padding: 0 1rem;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body class="selection:bg-blue-500/30">
+
+    <div class="h-1 w-full bg-gradient-to-r from-emerald-600 via-teal-500 to-transparent"></div>
+
+    <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex-1">
+                <a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a>
+            </div>
+            <div class="flex-[2] flex justify-center">
+                <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
+                    <li><a href="/wargame" class="nav-link active text-white">Wargame</a></li>
+                    <li><a href="/blog" class="nav-link">Blog</a></li>
+                    <li><a href="/tools" class="nav-link">Tools</a></li>
+                    <li><a href="/admin" class="nav-link admin-link">Admin</a></li>
+                </ul>
+            </div>
+            <div class="flex-1 flex justify-end" id="nav-auth-section">
+                <button id="login-btn" onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded mono tracking-tighter">LOG IN</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-6 py-16">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white tracking-tighter mb-2 italic">CHALLENGES</h1>
+                <p class="text-[11px] mono text-emerald-500 uppercase tracking-[0.3em]">Prove your technical skills</p>
+            </div>
+            
+            <div class="flex flex-wrap gap-3">
+                <input type="text" id="search-input" placeholder="SEARCH_CHALLENGE..." 
+                    class="bg-[#0f0f0f] border border-main px-4 py-2 rounded text-[11px] mono text-white focus:border-emerald-500 outline-none w-48">
+                
+                <select id="level-filter" class="filter-select rounded w-28">
+                    <option value="">ALL_LEVELS</option>
+                    <option value="Basic">BASIC</option>
+                    <option value="Medium">MEDIUM</option>
+                    <option value="Hard">HARD</option>
+                </select>
+
+                <select id="category-filter" class="filter-select rounded w-28">
+                    <option value="">ALL_CATS</option>
+                    <option value="Web">WEB</option>
+                    <option value="Pwn">PWN</option>
+                    <option value="Rev">REV</option>
+                    <option value="Misc">MISC</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="challenge-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="col-span-3 text-center py-20 mono text-gray-600 animate-pulse text-xs tracking-widest">
+                INITIALIZING_LAB_DATA...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
+        const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        // 1. 공통 인증 체크 (닉네임 표시)
+        async function checkAuth() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            const navAuth = document.getElementById('nav-auth-section');
+
+            if (user) {
+                const { data: profile } = await _supabase.from('profiles').select('nickname, points').eq('id', user.id).single();
+                navAuth.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="text-right">
+                            <div class="text-white text-[11px] font-bold mono">${profile?.nickname.toUpperCase()}</div>
+                            <div class="text-emerald-500 text-[9px] mono">${profile?.points} PT</div>
+                        </div>
+                        <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-white underline">LOGOUT</button>
+                    </div>`;
+                document.getElementById('logout-btn').onclick = async () => { await _supabase.auth.signOut(); location.reload(); };
+            }
+        }
+
+        // 2. 워게임 리스트 불러오기 및 필터링
+        async function fetchChallenges() {
+            const search = document.getElementById('search-input').value;
+            const level = document.getElementById('level-filter').value;
+            const category = document.getElementById('category-filter').value;
+
+            let query = _supabase.from('challenges').select('*').order('created_at', { ascending: false });
+
+            if (search) query = query.ilike('title', `%${search}%`);
+            if (level) query = query.eq('level', level);
+            if (category) query = query.eq('category', category);
+
+            const { data, error } = await query;
+            const grid = document.getElementById('challenge-grid');
+
+            if (error || data.length === 0) {
+                grid.innerHTML = `<div class="col-span-3 text-center py-20 mono text-gray-800 uppercase tracking-widest text-xs font-bold">No_Challenges_Found</div>`;
+                return;
+            }
+
+            grid.innerHTML = data.map(item => `
+                <a href="/wargame/view?id=${item.id}" class="challenge-card border border-main bg-[#0a0a0a] p-8 flex flex-col justify-between group">
+                    <div>
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="text-[10px] mono font-bold px-2 py-0.5 border border-emerald-500/30 text-emerald-500 uppercase tracking-tighter">${item.category}</span>
+                            <span class="text-[10px] mono text-gray-600 uppercase font-bold tracking-widest">${item.level}</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors tracking-tight">${item.title}</h3>
+                    </div>
+                    <div class="flex justify-between items-end border-t border-main pt-4 mt-4">
+                        <span class="text-[10px] mono text-gray-700 uppercase">Solver: ${item.solvers || 0}</span>
+                        <span class="text-xs font-black text-white mono">${item.points} PT</span>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        // 이벤트 리스너 등록
+        document.getElementById('search-input').addEventListener('input', fetchChallenges);
+        document.getElementById('level-filter').addEventListener('change', fetchChallenges);
+        document.getElementById('category-filter').addEventListener('change', fetchChallenges);
+
+        checkAuth();
+        fetchChallenges();
+    </script>
+</body>
+</html>
