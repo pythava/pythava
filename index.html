@@ -3,123 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Private Studio</title>
+    <title>Studio X | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         body { 
-            font-family: 'Pretendard', sans-serif; 
-            background-color: #05070a; /* 깊은 자정색 배경 */
-            color: #e2e8f0;
+            font-family: 'Inter', sans-serif; 
+            background-color: #0a0a0a; 
+            color: #d1d5db;
         }
-        /* 은은한 네온 효과를 가진 카드 */
-        .cyber-card {
-            background: rgba(17, 25, 40, 0.75);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .cyber-card:hover {
-            border: 1px solid rgba(59, 130, 246, 0.5);
-            box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
-            transform: translateY(-5px);
-        }
-        /* 메뉴 텍스트 애니메이션 */
-        .nav-item {
-            position: relative;
-            opacity: 0.7;
-            transition: 0.3s;
-        }
-        .nav-item:hover {
-            opacity: 1;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-        }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .border-main { border-color: #1f2937; }
+        .nav-link { transition: color 0.2s; }
+        .nav-link:hover { color: #ffffff; }
+        
+        /* 스크롤바 디자인 */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="selection:bg-blue-500/30 selection:text-blue-200">
 
-    <nav class="sticky top-0 z-50 px-6 py-4 flex justify-center">
-        <div class="w-full max-w-4xl cyber-card rounded-full px-8 py-3 flex items-center justify-between">
-            <div class="text-xl font-extrabold tracking-tighter text-white">
-                STUDIO<span class="text-blue-500">_X</span>
+    <div class="h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-transparent"></div>
+
+    <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <a href="/" class="text-white font-extrabold tracking-tighter text-lg">STUDIO<span class="text-blue-500">_X</span></a>
+                <ul class="hidden md:flex items-center gap-6 text-[13px] font-medium text-gray-500 uppercase tracking-widest mono">
+                    <li><a href="#wargame" class="nav-link">Wargame</a></li>
+                    <li><a href="#blog" class="nav-link text-white">Blog</a></li>
+                    <li><a href="#tools" class="nav-link">Tools</a></li>
+                    <li><a href="#admin" class="nav-link hover:text-red-400">Admin</a></li>
+                </ul>
             </div>
-
-            <ul class="hidden md:flex items-center gap-8 text-sm font-bold">
-                <li><a href="#wargame" class="nav-item">Wargame</a></li>
-                <li><a href="#blog" class="nav-item">Blog</a></li>
-                <li><a href="#tools" class="nav-item">Tools</a></li>
-                <li><a href="#admin" class="nav-item text-red-500/80 hover:text-red-400">Admin</a></li>
-            </ul>
-
-            <div id="auth-area">
-                <button id="login-btn" class="bg-white text-black px-5 py-2 rounded-full text-xs font-black hover:bg-blue-500 hover:text-white transition-all active:scale-95">
-                    LOGIN
+            
+            <div id="auth-section">
+                <button id="login-btn" class="text-[12px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded transition-all">
+                    LOG IN
                 </button>
-                <div id="user-info" class="hidden flex items-center gap-3">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <button id="logout-btn" class="text-[10px] font-bold text-gray-500 hover:text-white">OUT</button>
+                <div id="user-info" class="hidden flex items-center gap-4">
+                    <span class="text-[12px] mono text-blue-500">● ONLINE</span>
+                    <button id="logout-btn" class="text-[11px] text-gray-600 hover:text-gray-300">LOGOUT</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-6 pt-16 pb-24">
+    <main class="max-w-5xl mx-auto px-6 py-16">
         
-        <header class="mb-20 space-y-4">
-            <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
-                기록하고, <br/>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">침투하고, 도구화하다.</span>
+        <section class="mb-20 pb-12 border-b border-main">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight leading-tight">
+                기록과 분석의 <br/>정제된 공간.
             </h1>
-            <p class="text-gray-400 font-medium text-lg max-w-xl leading-relaxed">
-                나만을 위한 다크한 실험 공간입니다. 모든 기록과 도구는 이곳에 저장됩니다.
+            <p class="text-gray-500 text-lg leading-relaxed max-w-2xl">
+                워게임 풀이, 기술 블로그, 그리고 개인적인 도구들을 정돈된 형태로 보관합니다. 
+                불필요한 소음을 제거하고 본질에 집중합니다.
             </p>
-        </header>
+        </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-0 border-t border-l border-main">
             
-            <div class="cyber-card rounded-[2rem] p-8 flex flex-col justify-between min-h-[220px] cursor-pointer group">
-                <div>
-                    <div class="text-blue-500 font-black text-xs tracking-widest mb-3">01. CHALLENGE</div>
-                    <h3 class="text-2xl font-bold text-white mb-2">워게임</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">풀어낸 Flag와 해결한 문제들을 기록합니다.</p>
-                </div>
-                <div class="flex justify-end">
-                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-blue-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7-7 7M3 12h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
+            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
+                <div class="text-[11px] mono text-blue-500 mb-4 tracking-tighter uppercase font-bold">Post / 2026-02-20</div>
+                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400">HackTheon 2025 Quals Writeup</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">이번 대회에서 해결한 Web 및 Pwnable 문제들에 대한 상세 풀이를 정리했습니다.</p>
+                <div class="text-[12px] text-gray-600 mono group-hover:text-gray-400 italic">Read more →</div>
+            </div>
+
+            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
+                <div class="text-[11px] mono text-emerald-500 mb-4 tracking-tighter uppercase font-bold">Challenge / Active</div>
+                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-emerald-400">Binary Exploit 기초</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">Stack Overflow를 통한 리턴 어드레스 변조와 간단한 쉘 획득 연습.</p>
+                <div class="w-full bg-gray-900 h-1 mt-2">
+                    <div class="bg-emerald-500 h-full w-[70%]"></div>
                 </div>
             </div>
 
-            <div class="cyber-card rounded-[2rem] p-8 flex flex-col justify-between min-h-[220px] cursor-pointer group">
-                <div>
-                    <div class="text-indigo-500 font-black text-xs tracking-widest mb-3">02. LOGS</div>
-                    <h3 class="text-2xl font-bold text-white mb-2">개인 블로그</h3>
-                    <p class="text-gray-500 text-sm leading-relaxed">생각을 정리하고 공부한 내용을 기록하는 공간입니다.</p>
-                </div>
-                <div class="flex justify-end">
-                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-indigo-500 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7-7 7M3 12h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </div>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 cyber-card rounded-[2rem] p-10 flex flex-col md:flex-row items-center gap-8 cursor-pointer group">
-                <div class="flex-1 text-center md:text-left">
-                    <div class="text-emerald-500 font-black text-xs tracking-widest mb-3">03. ARCHIVE</div>
-                    <h3 class="text-3xl font-bold text-white mb-2">개발 & 보안 도구</h3>
-                    <p class="text-gray-500">빠른 업무 처리를 위한 전용 툴박스입니다.</p>
-                </div>
-                <div class="px-10 py-4 bg-white/5 rounded-2xl border border-white/10 font-black text-white group-hover:bg-blue-600 group-hover:border-blue-500 transition-all">
-                    LAUNCH TOOLBOX
-                </div>
+            <div class="border-r border-b border-main p-8 hover:bg-[#111111] transition-all cursor-pointer group">
+                <div class="text-[11px] mono text-indigo-500 mb-4 tracking-tighter uppercase font-bold">Tool / Utility</div>
+                <h3 class="text-xl font-bold text-white mb-3 group-hover:text-indigo-400">JWT Debugger</h3>
+                <p class="text-gray-500 text-sm leading-relaxed mb-6">웹 해킹 시 필요한 JWT 토큰 복호화 및 변조를 위한 간단한 툴입니다.</p>
+                <div class="text-[12px] text-gray-600 mono group-hover:text-gray-400 italic font-bold tracking-widest uppercase">Open</div>
             </div>
 
         </div>
+
+        <section class="mt-24">
+            <h2 class="text-sm font-bold text-gray-400 uppercase tracking-[0.3em] mb-8 mono">Recent History</h2>
+            <div class="space-y-4">
+                <div class="flex items-center justify-between py-4 border-b border-main hover:bg-[#111111] px-4 rounded group transition-all">
+                    <span class="text-sm font-medium text-gray-300 group-hover:text-white">Supabase Auth 연동 이슈 해결 기록</span>
+                    <span class="text-[11px] mono text-gray-600">FEB 18, 2026</span>
+                </div>
+                <div class="flex items-center justify-between py-4 border-b border-main hover:bg-[#111111] px-4 rounded group transition-all">
+                    <span class="text-sm font-medium text-gray-300 group-hover:text-white">Cloudflare Pages 배포 자동화 가이드</span>
+                    <span class="text-[11px] mono text-gray-600">FEB 15, 2026</span>
+                </div>
+            </div>
+        </section>
     </main>
 
-    <footer class="py-12 text-center">
-        <div class="text-xs font-bold text-gray-700 tracking-widest uppercase mb-4">Secured by Cloudflare & Supabase</div>
-        <div class="w-1 h-1 bg-gray-800 rounded-full mx-auto"></div>
+    <footer class="max-w-5xl mx-auto px-6 py-20 border-t border-main mt-12">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <span class="text-[11px] mono text-gray-600 uppercase tracking-widest">© 2026 Studio_X. Powered by Cloudflare.</span>
+            <div class="flex gap-6">
+                <a href="#" class="text-[11px] mono text-gray-600 hover:text-white">GitHub</a>
+                <a href="#" class="text-[11px] mono text-gray-600 hover:text-white">Twitter</a>
+            </div>
+        </div>
     </footer>
 
     <script>
