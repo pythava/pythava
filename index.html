@@ -6,27 +6,22 @@
     <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0a0a0a; 
-            color: #d1d5db;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .border-main { border-color: #1f2937; }
         .nav-link { transition: all 0.2s; position: relative; }
         .nav-link:hover { color: #ffffff; }
-        /* 현재 페이지 표시 언더라인 효과 */
-        .nav-link.active::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background-color: #3b82f6;
-        }
         
+        /* Admin 버튼 숨김 및 호버 효과 */
+        .admin-link { opacity: 0; transition: all 0.3s ease; }
+        .admin-link:hover { opacity: 1; color: #ef4444; }
+
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 100%; height: 1px; background-color: #3b82f6;
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0a0a0a; }
         ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
@@ -38,7 +33,6 @@
 
     <nav class="border-b border-main sticky top-0 bg-[#0a0a0a]/80 backdrop-blur-md z-50">
         <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            
             <div class="flex-1">
                 <a href="/" class="text-white font-extrabold tracking-tighter text-xl">PYTHAVA</a>
             </div>
@@ -46,18 +40,21 @@
             <div class="flex-[2] flex justify-center">
                 <ul class="flex items-center gap-10 text-[12px] font-bold text-gray-500 uppercase tracking-[0.2em] mono">
                     <li><a href="/wargame" class="nav-link">Wargame</a></li>
-                    <li><a href="/blog" class="nav-link active text-white">Blog</a></li>
+                    <li><a href="/blog" class="nav-link">Blog</a></li>
                     <li><a href="/tools" class="nav-link">Tools</a></li>
-                    <li><a href="/admin" class="nav-link hover:text-red-500">Admin</a></li>
+                    <li><a href="/admin" class="nav-link admin-link">Admin</a></li>
                 </ul>
             </div>
             
             <div class="flex-1 flex justify-end" id="auth-section">
-                <button id="login-btn" class="text-[11px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded transition-all mono tracking-tighter">
+                <button id="login-btn" onclick="location.href='/login'" class="text-[11px] font-bold text-gray-400 hover:text-white border border-main px-4 py-1.5 rounded transition-all mono tracking-tighter">
                     LOG IN
                 </button>
                 <div id="user-info" class="hidden flex items-center gap-4">
-                    <span class="text-[11px] mono text-blue-500">ONLINE</span>
+                    <div class="flex flex-col items-end">
+                        <span id="user-nickname" class="text-white text-[12px] font-bold mono">GUEST</span>
+                        <span id="user-points" class="text-[9px] text-blue-500 mono">0 PT</span>
+                    </div>
                     <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-gray-300 underline underline-offset-4">LOGOUT</button>
                 </div>
             </div>
@@ -65,29 +62,26 @@
     </nav>
 
     <main class="max-w-5xl mx-auto px-6 py-20">
-        
         <section class="mb-24">
             <h1 class="text-5xl md:text-6xl font-extrabold text-white mb-8 tracking-tighter leading-none">
                 Privacy, <br/>Research & Tools.
             </h1>
             <p class="text-gray-500 text-lg leading-relaxed max-w-xl font-medium">
-                개인적인 연구 기록과 도구들을 모아놓은 아카이브입니다. <br/>
-                모든 컨텐츠는 정제된 데이터 기반으로 기록됩니다.
+                개인적인 연구 기록과 도구들을 모아놓은 아카이브입니다.
             </p>
         </section>
 
         <div class="grid grid-cols-1 md:grid-cols-3 border-t border-l border-main">
-            
             <a href="/blog" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
                 <div class="text-[11px] mono text-blue-500 mb-6 font-bold tracking-widest uppercase">/Archive/Blog</div>
                 <h3 class="text-xl font-bold text-white mb-4 group-hover:text-blue-400 transition-colors">Technical Writeups</h3>
-                <p class="text-gray-500 text-sm leading-relaxed">해킹 대회 풀이 및 보안 기술 연구 기록.</p>
+                <p id="latest-blog" class="text-gray-500 text-sm leading-relaxed italic">Loading latest post...</p>
             </a>
 
             <a href="/wargame" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
                 <div class="text-[11px] mono text-emerald-500 mb-6 font-bold tracking-widest uppercase">/Labs/Wargame</div>
                 <h3 class="text-xl font-bold text-white mb-4 group-hover:text-emerald-400 transition-colors">Challenge Solves</h3>
-                <p class="text-gray-500 text-sm leading-relaxed">워게임 문제 풀이 현황 및 데이터베이스.</p>
+                <p id="latest-wargame" class="text-gray-500 text-sm leading-relaxed italic">Loading latest challenge...</p>
             </a>
 
             <a href="/tools" class="border-r border-b border-main p-10 hover:bg-[#0f0f0f] transition-all group">
@@ -95,32 +89,55 @@
                 <h3 class="text-xl font-bold text-white mb-4 group-hover:text-indigo-400 transition-colors">Developed Utilities</h3>
                 <p class="text-gray-500 text-sm leading-relaxed">효율적인 분석을 위한 커스텀 도구 모음.</p>
             </a>
-
         </div>
     </main>
 
-    <footer class="max-w-5xl mx-auto px-6 py-16 border-t border-main mt-20 flex flex-col md:flex-row justify-between items-center text-gray-600">
-        <span class="text-[10px] mono uppercase tracking-[0.3em]">© 2026 PYTHAVA. All Rights Reserved.</span>
-        <div class="flex gap-10 text-[10px] mono uppercase tracking-widest font-bold">
-            <a href="https://github.com" class="hover:text-white transition-colors">Github</a>
-            <a href="#" class="hover:text-white transition-colors">Status</a>
-        </div>
-    </footer>
-
     <script>
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const userInfo = document.getElementById('user-info');
+        const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
+        const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp"; // 본인의 키로 확인
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // 임시 UI 토글 로직
-        loginBtn.onclick = () => {
-            loginBtn.classList.add('hidden');
-            userInfo.classList.remove('hidden');
+        // 1. 인증 상태 체크 및 닉네임 표시
+        async function checkAuth() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            
+            if (user) {
+                document.getElementById('login-btn').classList.add('hidden');
+                document.getElementById('user-info').classList.remove('hidden');
+                
+                // profiles 테이블에서 닉네임과 점수 가져오기
+                const { data: profile } = await _supabase
+                    .from('profiles')
+                    .select('nickname, points')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (profile) {
+                    document.getElementById('user-nickname').innerText = profile.nickname.toUpperCase();
+                    document.getElementById('user-points').innerText = `${profile.points} PT`;
+                }
+            }
+        }
+
+        // 2. 로그아웃 기능
+        document.getElementById('logout-btn').onclick = async () => {
+            await _supabase.auth.signOut();
+            location.reload();
         };
-        logoutBtn.onclick = () => {
-            loginBtn.classList.remove('hidden');
-            userInfo.classList.add('hidden');
-        };
+
+        // 3. 최신 블로그 & 워게임 데이터 불러오기
+        async function fetchLatestData() {
+            // 최신 블로그 글 1개
+            const { data: blogs } = await _supabase.from('posts').select('title').order('created_at', { ascending: false }).limit(1);
+            if (blogs && blogs[0]) document.getElementById('latest-blog').innerText = `Latest: ${blogs[0].title}`;
+
+            // 최신 워게임 문제 1개
+            const { data: challenges } = await _supabase.from('challenges').select('title').order('created_at', { ascending: false }).limit(1);
+            if (challenges && challenges[0]) document.getElementById('latest-wargame').innerText = `New: ${challenges[0].title}`;
+        }
+
+        checkAuth();
+        fetchLatestData();
     </script>
 </body>
 </html>
