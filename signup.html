@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PYTHAVA | Sign Up</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #d1d5db; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .input-field { background-color: #0f0f0f; border: 1px solid #1f2937; transition: all 0.2s; color: white; }
+        .input-field:focus { border-color: #3b82f6; outline: none; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <nav class="border-b border-[#1f2937] h-16 flex items-center px-6 justify-between bg-[#0a0a0a]/80 backdrop-blur-md">
+        <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
+        <a href="/login" class="text-[11px] font-bold text-gray-400 hover:text-white mono">BACK_TO_LOGIN</a>
+    </nav>
+
+    <main class="flex-1 flex items-center justify-center px-6 py-12">
+        <div class="w-full max-w-[400px]">
+            <div class="text-center mb-8">
+                <h2 class="text-white font-extrabold text-2xl tracking-tight">Create Identity</h2>
+                <p class="text-[11px] mono text-gray-600 mt-2 uppercase tracking-[0.3em]">Join the security network</p>
+            </div>
+
+            <div class="border border-[#1f2937] rounded-lg p-8 bg-[#0a0a0a]">
+                <form id="signup-form" class="space-y-5">
+                    <div>
+                        <label class="block text-[10px] mono text-gray-500 uppercase tracking-widest mb-2">Nickname</label>
+                        <input type="text" id="nickname" required class="w-full px-4 py-3 rounded input-field text-sm" placeholder="Your_Handle">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] mono text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                        <input type="email" id="email" required class="w-full px-4 py-3 rounded input-field text-sm" placeholder="name@example.com">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] mono text-gray-500 uppercase tracking-widest mb-2">Password</label>
+                        <input type="password" id="password" required class="w-full px-4 py-3 rounded input-field text-sm" placeholder="••••••••">
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded font-bold text-xs uppercase tracking-widest hover:bg-blue-500 transition-all">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
+        const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
+        const _supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        document.getElementById('signup-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const nickname = document.getElementById('nickname').value;
+
+            // 1. Supabase Auth에 계정 생성
+            const { data, error } = await _supabase.auth.signUp({
+                email: email,
+                password: password,
+            });
+
+            if (error) {
+                alert("Auth Error: " + error.message);
+                return;
+            }
+
+            // 2. 가입 성공 후 profiles 테이블에 닉네임과 정보 저장
+            if (data.user) {
+                const { error: profileError } = await _supabase.from('profiles').insert([
+                    { 
+                        id: data.user.id, 
+                        email: email, 
+                        nickname: nickname,
+                        points: 0 
+                    }
+                ]);
+
+                if (profileError) {
+                    alert("Profile Save Error: " + profileError.message);
+                } else {
+                    alert("가입 성공! 이메일을 확인하거나 로그인해 주세요.");
+                    location.href = '/login';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
