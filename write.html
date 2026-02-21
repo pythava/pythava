@@ -3,136 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PYTHAVA | Create Post</title>
+    <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #080808; color: #d1d5db; height: 100vh; overflow: hidden; }
-        .soft-edge { border-radius: 8px; }
+        body { font-family: 'Inter', sans-serif; background-color: #080808; color: #d1d5db; padding-top: 64px; }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* 에디터 높이 설정 */
-        .editor-container { height: calc(100vh - 180px); }
-        
-        /* 마크다운 미리보기 스타일링 */
-        #preview-area {
-            color: #e5e7eb;
-            line-height: 1.6;
-        }
-        #preview-area h1 { font-size: 2rem; font-weight: 800; margin-bottom: 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; }
-        #preview-area h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.8rem; }
-        #preview-area p { margin-bottom: 1rem; }
-        #preview-area code { background: #1e1e1e; padding: 2px 5px; border-radius: 4px; font-family: 'JetBrains Mono'; color: #3b82f6; }
-        #preview-area pre { background: #111; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1rem; border: 1px solid #222; }
-        #preview-area blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #9ca3af; font-style: italic; }
-        #preview-area ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
+        .soft-edge { border-radius: 8px; }
+        .btn-edge { border-radius: 6px; }
 
-        .input-dark { background: #111; border: 1px solid #222; outline: none; transition: border-color 0.2s; }
-        .input-dark:focus { border-color: #3b82f6; }
-        
-        /* 커스텀 스크롤바 */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #080808; }
-        ::-webkit-scrollbar-thumb { background: #222; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #333; }
+        /* Navigation */
+        nav { border-bottom: 1px solid #1a1a1a; background-color: rgba(8, 8, 8, 0.85); backdrop-filter: blur(12px); }
+        .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #94a3b8; transition: all 0.2s; }
+        .nav-link:hover, .nav-link.active { color: #3b82f6; }
+
+        /* Category Buttons */
+        .cat-btn { padding: 8px 20px; background: #111; border: 1px solid #222; font-size: 12px; font-weight: 600; transition: all 0.2s; color: #94a3b8; }
+        .cat-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        /* Blog Card */
+        .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 2rem; transition: all 0.3s ease; cursor: pointer; }
+        .blog-card:hover { border-color: #333; background: #141414; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+
+        /* Search */
+        .search-container { background: #111; border: 1px solid #222; }
+        .search-container:focus-within { border-color: #3b82f6; }
+        .search-input { background: transparent; width: 100%; outline: none; color: #fff; padding: 1rem; }
+
+        /* 2. 마크다운 상세 스타일링 (모달 전용) */
+        #modal-content { color: #e5e7eb; line-height: 1.7; }
+        #modal-content h1 { font-size: 1.8rem; font-weight: 800; margin: 1.5rem 0 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; color: #fff; }
+        #modal-content h2 { font-size: 1.4rem; font-weight: 700; margin: 1.5rem 0 0.8rem; color: #fff; }
+        #modal-content p { margin-bottom: 1.2rem; }
+        #modal-content code { background: #1e1e1e; padding: 2px 5px; border-radius: 4px; font-family: 'JetBrains Mono'; color: #3b82f6; font-size: 0.9em; }
+        #modal-content pre { background: #111; padding: 1.2rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.5rem; border: 1px solid #222; }
+        #modal-content blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #9ca3af; font-style: italic; margin-bottom: 1.2rem; }
+        #modal-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.2rem; }
+        #modal-content img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+
+        .write-btn { position: fixed; bottom: 40px; right: 40px; background: #3b82f6; color: white; padding: 16px 24px; z-index: 100; font-weight: 700; box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3); }
+        .modal-content-area::-webkit-scrollbar { width: 6px; }
+        .modal-content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
-<body class="flex flex-col">
+<body>
 
-    <header class="p-6 border-b border-gray-900 bg-[#0a0a0a]">
-        <div class="max-w-[1800px] mx-auto flex flex-col gap-4">
-            <div class="flex justify-between items-center">
-                <h1 class="text-xl font-extrabold tracking-tighter">PUBLISH_CONTENT</h1>
-                <div class="flex gap-3">
-                    <button onclick="location.href='/blog.html'" class="px-4 py-2 text-xs font-bold text-gray-500 hover:text-white transition-all">CANCEL</button>
-                    <button onclick="submitPost()" class="px-6 py-2 bg-blue-600 text-white text-xs font-bold soft-edge hover:bg-blue-500 transition-all shadow-lg shadow-blue-900/20">PUBLISH</button>
-                </div>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="text" id="post-title" placeholder="제목을 입력하세요" class="md:col-span-2 input-dark p-3 soft-edge text-sm font-semibold text-white">
-                <select id="post-category" class="input-dark p-3 soft-edge text-sm text-gray-400">
-                    <option value="Write-up">Write-up</option>
-                    <option value="Blog">Blog</option>
-                    <option value="Announcement">공지사항</option>
-                    <option value="Free">자유게시판</option>
-                </select>
-                <input type="text" id="post-tags" placeholder="태그 (예: #pwn #web)" class="input-dark p-3 soft-edge text-sm">
+    <nav class="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-8 z-[1000]">
+        <div class="flex items-center gap-10">
+            <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
+            <div class="hidden md:flex gap-6">
+                <a href="#" class="nav-link">WARGAME</a>
+                <a href="#" class="nav-link active">ARCHIVE</a>
+                <a href="#" class="nav-link">RANKING</a>
             </div>
         </div>
-    </header>
+        <div class="flex items-center gap-4">
+            <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">GUEST@SESSION</div>
+            <button class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge hover:bg-gray-200 transition-all">SIGN_IN</button>
+        </div>
+    </nav>
 
-    <main class="flex-1 flex overflow-hidden">
-        <section class="flex-1 border-r border-gray-900">
-            <textarea id="markdown-input" oninput="updatePreview()" 
-                      class="w-full h-full bg-transparent p-8 outline-none resize-none mono text-sm leading-relaxed text-gray-300"
-                      placeholder="# Markdown을 사용해 내용을 입력하세요..."></textarea>
-        </section>
+    <div class="max-w-6xl mx-auto p-6 md:p-12">
+        <header class="mb-12">
+            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Archive</h1>
+            <p class="text-gray-500 text-sm">기록하고, 공유하며 함께 성장하는 공간입니다.</p>
+        </header>
 
-        <section class="flex-1 bg-[#050505] overflow-y-auto p-8" id="preview-area">
-            <div class="text-gray-600 mono text-sm">PREVIEW_WINDOW</div>
-            <div id="render-target" class="mt-4"></div>
-        </section>
-    </main>
+        <div class="flex flex-wrap gap-2 mb-10">
+            <button onclick="filterPosts('All')" class="cat-btn active btn-edge" id="btn-All">전체보기</button>
+            <button onclick="filterPosts('Write-up')" class="cat-btn btn-edge" id="btn-Write-up">Write-up</button>
+            <button onclick="filterPosts('Blog')" class="cat-btn btn-edge" id="btn-Blog">Blog</button>
+            <button onclick="filterPosts('Announcement')" class="cat-btn btn-edge" id="btn-Announcement">공지사항</button>
+            <button onclick="filterPosts('Free')" class="cat-btn btn-edge" id="btn-Free">자유게시판</button>
+        </div>
+
+        <div class="mb-16">
+            <div class="search-container soft-edge flex items-center px-5">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="찾으시는 글의 제목이나 태그를 입력하세요..." class="search-input text-sm">
+            </div>
+        </div>
+
+        <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20"></div>
+    </div>
+
+    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4 md:p-8">
+        <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-[#0f0f0f] border border-[#222] w-full max-w-4xl max-h-[90vh] overflow-y-auto soft-edge shadow-2xl flex flex-col modal-content-area">
+            <div class="sticky top-0 bg-[#0f0f0f]/95 backdrop-blur-md border-b border-[#1a1a1a] p-6 flex justify-between items-center z-10">
+                <div id="modal-category" class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">CATEGORY</div>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-8 md:p-16">
+                <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight"></h2>
+                <div class="flex items-center gap-4 mb-12 pb-6 border-b border-[#1a1a1a]">
+                    <div class="flex flex-col">
+                        <span id="modal-author" class="text-sm text-gray-300 font-semibold">Author</span>
+                        <span id="modal-date" class="text-xs text-gray-500 mono">DATE</span>
+                    </div>
+                </div>
+                <div id="modal-content" class="markdown-body"></div>
+                <div id="modal-tags" class="mt-16 flex gap-3 flex-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <a href="/write.html" class="write-btn btn-edge text-sm">
+        <span class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
+            새 글 작성하기
+        </span>
+    </a>
 
     <script>
         const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
         const SB_KEY = "sb_publishable_q_NjT8knSzwiL7TOOajWYg_5FN1zIZp";
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-        // 마크다운 실시간 렌더링
-        function updatePreview() {
-            const input = document.getElementById('markdown-input').value;
-            const target = document.getElementById('render-target');
-            target.innerHTML = marked.parse(input);
-        }
+        let allPosts = [];
+        let currentFilter = 'All';
 
-        async function submitPost() {
-            const title = document.getElementById('post-title').value;
-            const category = document.getElementById('post-category').value;
-            const content = document.getElementById('markdown-input').value;
-            const tags = document.getElementById('post-tags').value;
-
-            if (!title || !content) {
-                alert("제목과 내용을 모두 입력해주세요.");
-                return;
-            }
-
-            // 세션 정보 가져오기
+        async function init() {
             const { data: { user } } = await _supabase.auth.getUser();
-            if (!user) {
-                alert("로그인이 필요합니다.");
-                return;
-            }
+            if (user) document.getElementById('user-badge').innerText = user.email.split('@')[0].toUpperCase();
 
-            // 닉네임 정보 가져오기 (profiles 테이블 기준)
-            const { data: profile } = await _supabase
-                .from('profiles')
-                .select('nickname')
-                .eq('id', user.id)
-                .single();
-
-            const { error } = await _supabase.from('posts').insert([{
-                title,
-                category,
-                content,
-                tags,
-                author_id: user.id,
-                author_nickname: profile ? profile.nickname : user.email.split('@')[0]
-            }]);
-
-            if (error) {
-                alert("Error: " + error.message);
-            } else {
-                alert("성공적으로 게시되었습니다!");
-                location.href = '/blog.html';
-            }
+            const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
+            if (!error) { allPosts = data || []; renderPosts(allPosts); }
         }
 
-        // 초기 실행
-        updatePreview();
+        function renderPosts(posts) {
+            const container = document.getElementById('posts-container');
+            if (posts.length === 0) {
+                container.innerHTML = `<div class="py-20 text-gray-600 text-center">작성된 게시글이 없습니다.</div>`;
+                return;
+            }
+            container.innerHTML = posts.map(p => {
+                const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+                return `
+                    <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                            <div>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">${p.category}</span>
+                                    <span class="w-1 h-1 bg-gray-700 rounded-full"></span>
+                                    <span class="text-[11px] text-gray-500 mono">${date}</span>
+                                </div>
+                                <h2 class="text-xl font-bold text-white mb-2">${p.title}</h2>
+                                <p class="text-gray-400 text-sm line-clamp-1">${p.content.substring(0, 100).replace(/[#*`]/g, '')}...</p>
+                            </div>
+                            <div class="flex flex-col md:items-end gap-2 shrink-0">
+                                <span class="text-xs text-gray-500">by <span class="text-gray-300 font-semibold">${p.author_nickname || 'Admin'}</span></span>
+                                <div class="flex gap-2">
+                                    ${p.tags ? p.tags.split(' ').map(t => `<span class="text-[10px] text-blue-400/80 mono">#${t.replace('#','')}</span>`).join('') : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function openModal(postId) {
+            const post = allPosts.find(p => p.id == postId);
+            if (!post) return;
+
+            const date = new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('modal-category').innerText = post.category;
+            document.getElementById('modal-title').innerText = post.title;
+            document.getElementById('modal-author').innerText = post.author_nickname || 'Admin';
+            document.getElementById('modal-date').innerText = date;
+            
+            // 4. marked.parse를 사용하여 마크다운 렌더링 적용
+            document.getElementById('modal-content').innerHTML = marked.parse(post.content);
+            
+            const tagContainer = document.getElementById('modal-tags');
+            tagContainer.innerHTML = post.tags 
+                ? post.tags.split(' ').map(t => `<span class="px-3 py-1 bg-[#1a1a1a] text-blue-400 text-xs mono soft-edge border border-[#222]">#${t.trim().replace('#','')}</span>`).join('')
+                : '';
+
+            document.getElementById('post-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('post-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function filterPosts(category) {
+            currentFilter = category;
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + category).classList.add('active');
+            const filtered = category === 'All' ? allPosts : allPosts.filter(p => p.category === category);
+            renderPosts(filtered);
+        }
+
+        function searchPosts() {
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = allPosts.filter(p => {
+                const matchQuery = p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query);
+                const matchCategory = currentFilter === 'All' || p.category === currentFilter;
+                return matchQuery && matchCategory;
+            });
+            renderPosts(filtered);
+        }
+
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+        init();
     </script>
 </body>
 </html>
