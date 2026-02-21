@@ -15,18 +15,15 @@
             padding-top: 64px;
         }
         .mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* 1. 너무 각지지 않게, 미세한 곡률 적용 (Soft-Edge) */
         .soft-edge { border-radius: 8px; }
         .btn-edge { border-radius: 6px; }
 
-        /* 내비게이션 바 */
+        /* Navigation */
         nav {
             border-bottom: 1px solid #1a1a1a;
             background-color: rgba(8, 8, 8, 0.85);
             backdrop-filter: blur(12px);
         }
-
         .nav-link {
             font-size: 11px;
             font-weight: 600;
@@ -36,7 +33,7 @@
         }
         .nav-link:hover, .nav-link.active { color: #3b82f6; }
 
-        /* 카테고리 버튼 - 부드러운 사각형 */
+        /* Category Buttons */
         .cat-btn {
             padding: 8px 20px;
             background: #111;
@@ -51,12 +48,8 @@
             color: white;
             border-color: #3b82f6;
         }
-        .cat-btn:hover:not(.active) {
-            border-color: #444;
-            color: #fff;
-        }
 
-        /* 블로그 카드 - 미세한 곡률 + 은은한 배경 */
+        /* Blog Card */
         .blog-card {
             background: #0f0f0f;
             border: 1px solid #1a1a1a;
@@ -71,15 +64,12 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 검색창 - 모던한 마감 */
+        /* Search */
         .search-container {
             background: #111;
             border: 1px solid #222;
-            transition: border-color 0.2s;
         }
-        .search-container:focus-within {
-            border-color: #3b82f6;
-        }
+        .search-container:focus-within { border-color: #3b82f6; }
         .search-input {
             background: transparent;
             width: 100%;
@@ -88,7 +78,7 @@
             padding: 1rem;
         }
 
-        /* 플로팅 버튼 */
+        /* Floating Button */
         .write-btn {
             position: fixed;
             bottom: 40px;
@@ -99,12 +89,11 @@
             z-index: 100;
             font-weight: 700;
             box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-            transition: all 0.2s;
         }
-        .write-btn:hover {
-            transform: translateY(-4px);
-            background: #2563eb;
-        }
+
+        /* Custom Scrollbar for Modal */
+        .modal-content-area::-webkit-scrollbar { width: 6px; }
+        .modal-content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -113,16 +102,16 @@
         <div class="flex items-center gap-10">
             <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
             <div class="hidden md:flex gap-6">
-                <a href="/wargame.html" class="nav-link">WARGAME</a>
-                <a href="/blog.html" class="nav-link active">ARCHIVE</a>
-                <a href="/ranking.html" class="nav-link">RANKING</a>
+                <a href="#" class="nav-link">WARGAME</a>
+                <a href="#" class="nav-link active">ARCHIVE</a>
+                <a href="#" class="nav-link">RANKING</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
             <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">
                 GUEST@SESSION
             </div>
-            <button onclick="location.href='/login.html'" class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge hover:bg-gray-200 transition-all">SIGN_IN</button>
+            <button class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge hover:bg-gray-200 transition-all">SIGN_IN</button>
         </div>
     </nav>
 
@@ -147,8 +136,31 @@
             </div>
         </div>
 
-        <div id="posts-container" class="grid grid-cols-1 gap-6">
+        <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20">
             </div>
+    </div>
+
+    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4 md:p-8">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-[#0f0f0f] border border-[#222] w-full max-w-4xl max-h-[85vh] overflow-y-auto soft-edge shadow-2xl flex flex-col modal-content-area">
+            <div class="sticky top-0 bg-[#0f0f0f]/90 backdrop-blur-md border-b border-[#1a1a1a] p-6 flex justify-between items-center z-10">
+                <div id="modal-category" class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">CATEGORY</div>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="p-8 md:p-12">
+                <h2 id="modal-title" class="text-3xl md:text-4xl font-extrabold text-white mb-6 leading-tight"></h2>
+                <div class="flex items-center gap-4 mb-10 pb-6 border-b border-[#1a1a1a]">
+                    <div class="flex flex-col">
+                        <span id="modal-author" class="text-sm text-gray-300 font-semibold">Author</span>
+                        <span id="modal-date" class="text-xs text-gray-500 mono">DATE</span>
+                    </div>
+                </div>
+                <div id="modal-content" class="text-gray-300 leading-relaxed text-lg whitespace-pre-wrap min-h-[200px]"></div>
+                <div id="modal-tags" class="mt-12 flex gap-3 flex-wrap"></div>
+            </div>
+        </div>
     </div>
 
     <a href="/write.html" class="write-btn btn-edge text-sm">
@@ -193,7 +205,7 @@
             container.innerHTML = posts.map(p => {
                 const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
                 return `
-                    <div class="blog-card soft-edge" onclick="location.href='/view.html?id=${p.id}'">
+                    <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                             <div>
                                 <div class="flex items-center gap-3 mb-3">
@@ -216,6 +228,32 @@
             }).join('');
         }
 
+        function openModal(postId) {
+            const post = allPosts.find(p => p.id == postId);
+            if (!post) return;
+
+            const date = new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            document.getElementById('modal-category').innerText = post.category;
+            document.getElementById('modal-title').innerText = post.title;
+            document.getElementById('modal-author').innerText = post.author_nickname || 'Admin';
+            document.getElementById('modal-date').innerText = date;
+            document.getElementById('modal-content').innerText = post.content;
+            
+            const tagContainer = document.getElementById('modal-tags');
+            tagContainer.innerHTML = post.tags 
+                ? post.tags.split(' ').map(t => `<span class="px-3 py-1 bg-[#1a1a1a] text-blue-400 text-xs mono soft-edge border border-[#222]">#${t.trim().replace('#','')}</span>`).join('')
+                : '';
+
+            document.getElementById('post-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('post-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
         function filterPosts(category) {
             currentFilter = category;
             document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
@@ -234,6 +272,7 @@
             renderPosts(filtered);
         }
 
+        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
         init();
     </script>
 </body>
