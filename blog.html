@@ -9,78 +9,100 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #080808; color: #d1d5db; padding-top: 64px; }
+        body { font-family: 'Inter', sans-serif; background-color: #080808; color: #d1d5db; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .soft-edge { border-radius: 8px; }
         .btn-edge { border-radius: 6px; }
+        .border-main { border-color: #1f2937; }
 
-        /* Navigation */
-        nav { border-bottom: 1px solid #1a1a1a; background-color: rgba(8, 8, 8, 0.85); backdrop-filter: blur(12px); }
-        .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #94a3b8; transition: all 0.2s; }
-        .nav-link:hover, .nav-link.active { color: #3b82f6; }
+        /* Navigation Style */
+        .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; color: #94a3b8; transition: all 0.2s; position: relative; }
+        .nav-link:hover, .nav-link.active { color: #ffffff; }
+        .nav-link.active::after {
+            content: ''; position: absolute; bottom: -4px; left: 0;
+            width: 100%; height: 1px; background-color: #3b82f6;
+        }
 
-        /* Card Style */
+        /* Card & Filter Style */
         .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 2rem; transition: all 0.3s ease; cursor: pointer; }
         .blog-card:hover { border-color: #333; background: #141414; transform: translateY(-2px); }
+        .filter-btn { padding: 4px 12px; font-size: 11px; border: 1px solid #1a1a1a; transition: all 0.2s; color: #64748b; }
+        .filter-btn.active { border-color: #3b82f6; color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
 
-        /* === 마크다운 렌더링 스타일 (중요) === */
+        /* Markdown Rendering */
         #modal-content { color: #d1d5db; line-height: 1.8; word-break: break-all; }
         #modal-content h1 { font-size: 2rem; font-weight: 800; margin: 2rem 0 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; color: #fff; }
-        #modal-content h2 { font-size: 1.5rem; font-weight: 700; margin: 1.8rem 0 0.8rem; color: #fff; }
-        #modal-content h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.8rem; color: #fff; }
-        #modal-content p { margin-bottom: 1.2rem; }
-        #modal-content code { background: #1e1e1e; padding: 2px 5px; border-radius: 4px; font-family: 'JetBrains Mono'; color: #3b82f6; font-size: 0.9em; }
-        #modal-content pre { background: #111; padding: 1.2rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.5rem; border: 1px solid #222; }
-        #modal-content pre code { background: transparent; color: #e5e7eb; padding: 0; }
-        #modal-content blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #9ca3af; font-style: italic; margin: 1.5rem 0; }
-        #modal-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.2rem; }
-        #modal-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.2rem; }
-        #modal-content img { max-width: 100%; border-radius: 8px; }
-        #modal-content a { color: #3b82f6; text-decoration: underline; }
+        #modal-content code { background: #1e1e1e; padding: 2px 5px; border-radius: 4px; color: #3b82f6; font-size: 0.9em; }
+        #modal-content pre { background: #111; padding: 1.2rem; border-radius: 8px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid #222; }
 
-        /* Modal Layout */
-        .modal-content-area::-webkit-scrollbar { width: 6px; }
-        .modal-content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 10px; }
     </style>
 </head>
-<body>
+<body class="selection:bg-blue-500/30 selection:text-blue-200">
 
-    <nav class="fixed top-0 left-0 w-full h-16 flex items-center justify-between px-8 z-[1000]">
-        <div class="flex items-center gap-10">
-            <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
-            <div class="hidden md:flex gap-6">
-                <a href="/wargame.html" class="nav-link">WARGAME</a>
-                <a href="/blog.html" class="nav-link active">ARCHIVE</a>
-                <a href="/ranking.html" class="nav-link">RANKING</a>
+    <div class="h-1 w-full bg-gradient-to-r from-blue-600 via-indigo-500 to-transparent fixed top-0 z-[1100]"></div>
+
+    <nav class="border-b border-main fixed top-1 left-0 w-full bg-[#080808]/80 backdrop-blur-md z-[1000] h-16 flex items-center">
+        <div class="max-w-6xl mx-auto w-full px-8 flex items-center justify-between">
+            <div class="flex items-center gap-10">
+                <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
+                <div class="hidden md:flex gap-8">
+                    <a href="/wargame.html" class="nav-link">WARGAME</a>
+                    <a href="/blog.html" class="nav-link active uppercase">Archive</a>
+                    <a href="/ranking.html" class="nav-link">RANKING</a>
+                </div>
             </div>
-        </div>
-        <div class="flex items-center gap-4">
-            <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">GUEST@SESSION</div>
-            <button onclick="location.href='/login.html'" class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge">SIGN_IN</button>
+            
+            <div class="flex items-center gap-4" id="auth-section">
+                <button onclick="location.href='/login.html'" class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge">SIGN_IN</button>
+            </div>
         </div>
     </nav>
 
-    <div class="max-w-6xl mx-auto p-6 md:p-12">
-        <header class="mb-12">
-            <h1 class="text-4xl font-extrabold text-white mb-2">Archive</h1>
+    <main class="max-w-6xl mx-auto px-6 pt-32 pb-20">
+        <header class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Archive</h1>
+                <p class="text-gray-500 mono text-xs uppercase tracking-widest">Research Logs & Documentation</p>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <div class="relative">
+                    <input type="text" id="search-input" placeholder="SEARCH LOGS..." class="bg-[#111] border border-[#1a1a1a] px-4 py-2 soft-edge text-xs mono focus:outline-none focus:border-blue-500 w-48 md:w-64 transition-all">
+                </div>
+                <button onclick="location.href='/write.html'" class="bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold px-5 py-2 btn-edge mono transition-all shadow-lg shadow-blue-900/20">
+                    [+] WRITE
+                </button>
+            </div>
         </header>
 
-        <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20"></div>
-    </div>
+        <div class="flex flex-wrap gap-2 mb-8" id="category-filters">
+            <button class="filter-btn soft-edge active mono" onclick="filterCategory('ALL')">ALL</button>
+            <button class="filter-btn soft-edge mono" onclick="filterCategory('TECH')">TECH</button>
+            <button class="filter-btn soft-edge mono" onclick="filterCategory('HACKING')">HACKING</button>
+            <button class="filter-btn soft-edge mono" onclick="filterCategory('WRITEUP')">WRITEUP</button>
+            <button class="filter-btn soft-edge mono" onclick="filterCategory('TOOL')">TOOL</button>
+        </div>
+
+        <div id="posts-container" class="grid grid-cols-1 gap-4 mb-20">
+            <div class="text-center py-20 text-gray-600 mono animate-pulse">INITIALIZING ACCESS...</div>
+        </div>
+    </main>
 
     <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="relative bg-[#080808] border border-[#1a1a1a] w-full max-w-4xl max-h-[90vh] overflow-y-auto soft-edge shadow-2xl modal-content-area">
+        <div class="absolute inset-0 bg-black/95 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-[#080808] border border-[#1a1a1a] w-full max-w-4xl max-h-[90vh] overflow-y-auto soft-edge shadow-2xl">
             <div class="sticky top-0 bg-[#080808]/95 backdrop-blur-md p-6 flex justify-between items-center border-b border-[#1a1a1a] z-10">
-                <span id="modal-category" class="text-[10px] font-bold text-blue-500 mono">CATEGORY</span>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white">닫기</button>
+                <span id="modal-category" class="text-[10px] font-bold text-blue-500 mono uppercase tracking-widest">CATEGORY</span>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white mono text-xs">CLOSE [X]</button>
             </div>
             <div class="p-8 md:p-16">
-                <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-8"></h2>
+                <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-8 tracking-tighter"></h2>
                 <div id="modal-info" class="text-sm text-gray-500 mono mb-10 pb-6 border-b border-[#111]">
                     BY <span id="modal-author" class="text-gray-300"></span> / <span id="modal-date"></span>
                 </div>
-                <div id="modal-content"></div>
+                <div id="modal-content" class="markdown-body"></div>
                 <div id="modal-tags" class="mt-16 flex gap-2 flex-wrap"></div>
             </div>
         </div>
@@ -92,19 +114,84 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let allPosts = [];
+        let currentCategory = 'ALL';
 
         async function init() {
+            await checkAuth();
             const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
-            if (!error) { allPosts = data || []; renderPosts(allPosts); }
+            if (!error) { 
+                allPosts = data || []; 
+                renderPosts(allPosts); 
+            }
+            
+            // 검색 이벤트 리스너
+            document.getElementById('search-input').addEventListener('input', (e) => {
+                const keyword = e.target.value.toLowerCase();
+                const filtered = allPosts.filter(p => 
+                    p.title.toLowerCase().includes(keyword) || 
+                    p.content.toLowerCase().includes(keyword)
+                );
+                renderPosts(filtered);
+            });
+        }
+
+        async function checkAuth() {
+            const { data: { user } } = await _supabase.auth.getUser();
+            const authSection = document.getElementById('auth-section');
+
+            if (user) {
+                const { data: profile } = await _supabase
+                    .from('profiles')
+                    .select('nickname, points')
+                    .eq('id', user.id)
+                    .single();
+
+                authSection.innerHTML = `
+                    <div class="flex items-center gap-4">
+                        <div class="flex flex-col items-end">
+                            <span class="text-white text-[12px] font-bold mono">${(profile?.nickname || 'USER').toUpperCase()}</span>
+                            <span class="text-[9px] text-blue-500 mono">${profile?.points || 0} PT</span>
+                        </div>
+                        <button id="logout-btn" class="text-[10px] text-gray-600 hover:text-white underline underline-offset-4">LOGOUT</button>
+                    </div>
+                `;
+
+                document.getElementById('logout-btn').onclick = async () => {
+                    await _supabase.auth.signOut();
+                    location.reload();
+                };
+            }
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            // 버튼 활성화 스타일 변경
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.innerText === cat) btn.classList.add('active');
+            });
+
+            const filtered = cat === 'ALL' 
+                ? allPosts 
+                : allPosts.filter(p => p.category.toUpperCase() === cat);
+            renderPosts(filtered);
         }
 
         function renderPosts(posts) {
             const container = document.getElementById('posts-container');
+            if(posts.length === 0) {
+                container.innerHTML = `<div class="text-center py-20 text-gray-700 mono">NO RECORDS FOUND.</div>`;
+                return;
+            }
+
             container.innerHTML = posts.map(p => `
                 <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
-                    <span class="text-[10px] text-blue-500 font-bold uppercase">${p.category}</span>
-                    <h2 class="text-xl font-bold text-white mt-2">${p.title}</h2>
-                    <p class="text-gray-500 text-sm mt-2 line-clamp-1">${p.content.substring(0, 100).replace(/[#*`]/g, '')}</p>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] text-blue-500 font-bold uppercase mono tracking-widest">${p.category}</span>
+                        <span class="text-[10px] text-gray-600 mono">${new Date(p.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <h2 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">${p.title}</h2>
+                    <p class="text-gray-500 text-sm line-clamp-1 italic">${p.content.substring(0, 120).replace(/[#*`]/g, '')}...</p>
                 </div>
             `).join('');
         }
@@ -116,10 +203,8 @@
             document.getElementById('modal-title').innerText = post.title;
             document.getElementById('modal-category').innerText = post.category;
             document.getElementById('modal-author').innerText = (post.author_nickname || 'Admin').toUpperCase();
-            document.getElementById('modal-date').innerText = new Date(post.created_at).toLocaleDateString();
+            document.getElementById('modal-date').innerText = new Date(post.created_at).toLocaleString();
             
-            // 핵심 수정: marked.parse() 호출
-            // 만약 브라우저 콘솔에 marked.parse is not a function 에러가 뜨면 marked(post.content)로 시도해 보세요.
             try {
                 document.getElementById('modal-content').innerHTML = marked.parse(post.content);
             } catch (e) {
@@ -134,7 +219,7 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function closeModal() {
+            function closeModal() {
             document.getElementById('post-modal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
