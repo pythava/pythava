@@ -3,203 +3,268 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found - System Terminal</title>
+    <title>404 - Page Not Found</title>
     <style>
         :root {
-            --bg-color: #0c0c0c;
-            --text-color: #00ff00;
-            --border-color: #444;
+            --bg-color: #1a1a1a;
+            --term-bg: #282a36; /* Dracula Theme Style */
+            --text-main: #f8f8f2;
+            --accent: #ff79c6;
+            --glitch-color: #50fa7b;
         }
 
         body {
             background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace;
+            margin: 0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
+            color: var(--text-main);
         }
 
-        /* CMD 창 디자인 */
-        .terminal {
-            width: 600px;
-            border: 2px solid var(--border-color);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        /* 배경 404 타이포그래피 */
+        .bg-text {
+            position: absolute;
+            font-size: 25vw;
+            font-weight: 900;
+            opacity: 0.03;
+            user-select: none;
+            z-index: 0;
+            letter-spacing: -10px;
         }
 
+        /* 맥북 터미널 컨테이너 */
+        .mac-terminal {
+            position: relative;
+            z-index: 10;
+            width: 700px;
+            background: var(--term-bg);
+            border-radius: 12px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* 터미널 상단 바 (신호등 버튼) */
         .terminal-header {
-            background-color: var(--border-color);
-            color: #ddd;
-            padding: 5px 10px;
+            height: 35px;
+            background: #383a59;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+        }
+
+        .buttons { display: flex; gap: 8px; }
+        .btn { width: 12px; height: 12px; border-radius: 50%; }
+        .close { background: #ff5f56; }
+        .min { background: #ffbd2e; }
+        .max { background: #27c93f; }
+        .title { margin-left: 20px; font-size: 13px; color: #bd93f9; font-family: monospace; }
+
+        .terminal-content {
+            padding: 25px;
+            font-family: 'SF Mono', 'Fira Code', monospace;
+        }
+
+        .status-line { margin-bottom: 15px; font-size: 14px; }
+        .prompt { color: var(--glitch-color); }
+
+        /* 게임 캔버스 영역 */
+        canvas {
+            display: block;
+            background: #21222c;
+            border-radius: 4px;
+            width: 100%;
+            height: 200px;
+            margin-top: 15px;
+        }
+
+        .score-board {
             display: flex;
             justify-content: space-between;
-            font-size: 12px;
-        }
-
-        .terminal-body {
-            padding: 20px;
-            background-color: black;
-        }
-
-        .error-code { color: #ff5555; font-weight: bold; }
-
-        /* 게임 캔버스 */
-        #gameCanvas {
-            border-bottom: 1px solid var(--text-color);
-            display: block;
-            margin: 20px auto;
-            background: #000;
-        }
-
-        .instruction {
-            font-size: 0.8em;
-            text-align: center;
-            margin-top: 10px;
-            opacity: 0.8;
+            margin-top: 15px;
+            font-size: 18px;
+            color: var(--accent);
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
 
-<div class="terminal">
+<div class="bg-text">404</div>
+
+<div class="mac-terminal">
     <div class="terminal-header">
-        <span>C:\Windows\System32\404_error.exe</span>
-        <span>_ □ X</span>
+        <div class="buttons">
+            <div class="btn close"></div>
+            <div class="btn min"></div>
+            <div class="btn max"></div>
+        </div>
+        <div class="title">zsh — admin@macbook: ~/root/errors</div>
     </div>
-    <div class="terminal-body">
-        <div><span class="error-code">[ERROR]</span> HTTP 404: PAGE_NOT_FOUND</div>
-        <div>Requesting resources... <span style="color: yellow;">FAILED</span></div>
-        <br>
-        <div>System idle. Press <strong style="color: white;">[SPACE]</strong> to start Dino_Run.sys</div>
-        
-        <canvas id="gameCanvas" width="500" height="150"></canvas>
-        
-        <div class="instruction">SCORE: <span id="score">0</span></div>
+    <div class="terminal-content">
+        <div class="status-line">
+            <span class="prompt">➜</span> <span style="color: #8be9fd;">~</span> git checkout live-site<br>
+            <span style="color: #ff5555;">fatal: path 'live-site' not found.</span><br>
+            <span class="prompt">➜</span> <span style="color: #8be9fd;">~</span> run dino_game.py --high-speed
+        </div>
+
+        <canvas id="dinoCanvas"></canvas>
+
+        <div class="score-board">
+            <span>[ SYSTEM READY ]</span>
+            <span>SCORE: <span id="scoreVal">00000</span></span>
+        </div>
     </div>
 </div>
 
 <script>
-const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('dinoCanvas');
 const ctx = canvas.getContext('2d');
-const scoreElement = document.getElementById('score');
+const scoreVal = document.getElementById('scoreVal');
 
-// 게임 변수
+// 캔버스 크기 조정
+canvas.width = 650;
+canvas.height = 200;
+
 let score = 0;
-let gameSpeed = 3;
-let isGameOver = false;
-let animationId;
+let isGameRunning = false;
+let obstacles = [];
+let gameSpeed = 4;
+let frame = 0;
 
-// 공룡 객체
 const dino = {
     x: 50,
-    y: 130,
-    width: 20,
-    height: 20,
+    y: 170,
+    w: 30,
+    h: 34,
     dy: 0,
-    jumpForce: 10,
-    gravity: 0.6,
-    grounded: false
+    jump: 12,
+    gravity: 0.7,
+    isJumping: false,
+    draw() {
+        ctx.fillStyle = "#f8f8f2";
+        // 공룡 픽셀 몸체
+        ctx.fillRect(this.x, this.y - this.h, this.w, this.h);
+        // 공룡 눈 (간단한 디테일)
+        ctx.fillStyle = "#282a36";
+        ctx.fillRect(this.x + 20, this.y - 28, 4, 4);
+    }
 };
 
-// 장애물 배열
-const obstacles = [];
-
-function drawDino() {
-    ctx.fillStyle = '#00ff00';
-    ctx.fillRect(dino.x, dino.y - dino.height, dino.width, dino.height);
-}
-
-function spawnObstacle() {
-    if (Math.random() < 0.02) {
-        obstacles.push({
-            x: canvas.width,
-            y: 130,
-            width: 15,
-            height: 20 + Math.random() * 20
-        });
+class Obstacle {
+    constructor() {
+        this.w = 15 + Math.random() * 20;
+        this.h = 25 + Math.random() * 25;
+        this.x = canvas.width;
+        this.y = 170;
+    }
+    draw() {
+        ctx.fillStyle = "#ff79c6"; // 선인장 색상
+        ctx.fillRect(this.x, this.y - this.h, this.w, this.h);
+        // 가시 효과
+        ctx.fillRect(this.x - 5, this.y - this.h + 10, 5, 5);
+        ctx.fillRect(this.x + this.w, this.y - this.h + 5, 5, 5);
+    }
+    update() {
+        this.x -= gameSpeed;
+        this.draw();
     }
 }
 
-function drawObstacles() {
-    ctx.fillStyle = '#ff5555';
-    obstacles.forEach((obs, index) => {
-        obs.x -= gameSpeed;
-        ctx.fillRect(obs.x, obs.y - obs.height, obs.width, obs.height);
+function handleJump() {
+    if (!dino.isJumping) {
+        dino.dy = -dino.jump;
+        dino.isJumping = true;
+    }
+}
 
-        // 충돌 감지
-        if (dino.x < obs.x + obs.width &&
-            dino.x + dino.width > obs.x &&
-            dino.y - dino.height < obs.y &&
-            dino.y > obs.y - obs.height) {
+function spawnObstacles() {
+    if (frame % 100 === 0) {
+        obstacles.push(new Obstacle());
+    }
+}
+
+function gameLoop() {
+    if (!isGameRunning) return;
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // 바닥 선
+    ctx.strokeStyle = "#44475a";
+    ctx.beginPath();
+    ctx.moveTo(0, 170);
+    ctx.lineTo(canvas.width, 170);
+    ctx.stroke();
+
+    // 공룡 물리
+    dino.dy += dino.gravity;
+    dino.y += dino.dy;
+    if (dino.y > 170) {
+        dino.y = 170;
+        dino.isJumping = false;
+    }
+    dino.draw();
+
+    // 장애물 처리
+    spawnObstacles();
+    obstacles.forEach((obs, index) => {
+        obs.update();
+        
+        // 충돌 체크
+        if (dino.x < obs.x + obs.w && dino.x + dino.w > obs.x &&
+            dino.y - dino.h < obs.y && dino.y > obs.y - obs.h) {
             gameOver();
         }
 
-        // 화면 밖으로 나가면 제거
-        if (obs.x + obs.width < 0) {
+        if (obs.x + obs.w < 0) {
             obstacles.splice(index, 1);
             score++;
-            scoreElement.innerText = score;
+            scoreVal.innerText = score.toString().padStart(5, '0');
+        }
+    });
+
+    frame++;
+    gameSpeed += 0.0005;
+    requestAnimationFrame(gameLoop);
+}
+
+function gameOver() {
+    isGameRunning = false;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(0,0,canvas.width, canvas.height);
+    ctx.fillStyle = "#ff5555";
+    ctx.font = "bold 20px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("SYSTEM CRASHED: PRESS ANY KEY", canvas.width/2, canvas.height/2);
+}
+
+function init() {
+    // 초기 화면 그리기
+    ctx.fillStyle = "#6272a4";
+    ctx.font = "16px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("PRESS ANY KEY TO START", canvas.width/2, canvas.height/2);
+    
+    window.addEventListener('keydown', () => {
+        if (!isGameRunning) {
+            score = 0;
+            scoreVal.innerText = "00000";
+            obstacles = [];
+            gameSpeed = 4;
+            isGameRunning = true;
+            gameLoop();
+        } else {
+            handleJump();
         }
     });
 }
 
-function update() {
-    if (isGameOver) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 중력 로직
-    dino.dy += dino.gravity;
-    dino.y += dino.dy;
-
-    if (dino.y > 130) {
-        dino.y = 130;
-        dino.dy = 0;
-        dino.grounded = true;
-    }
-
-    drawDino();
-    spawnObstacle();
-    drawObstacles();
-
-    gameSpeed += 0.001; // 점점 빨라짐
-    animationId = requestAnimationFrame(update);
-}
-
-function gameOver() {
-    isGameOver = true;
-    cancelAnimationFrame(animationId);
-    ctx.fillStyle = "white";
-    ctx.font = "20px Courier New";
-    ctx.fillText("GAME OVER - Press Space", 120, 75);
-}
-
-function resetGame() {
-    score = 0;
-    scoreElement.innerText = score;
-    obstacles.length = 0;
-    gameSpeed = 3;
-    isGameOver = false;
-    dino.y = 130;
-    update();
-}
-
-window.addEventListener('keydown', (e) => {
-    if (e.code === 'Space') {
-        if (isGameOver) {
-            resetGame();
-        } else if (dino.grounded) {
-            dino.dy = -dino.jumpForce;
-            dino.grounded = false;
-        }
-    }
-});
-
-// 초기 실행
-update();
+init();
 </script>
 
 </body>
