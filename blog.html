@@ -23,45 +23,32 @@
         .cat-btn { padding: 8px 20px; background: #111; border: 1px solid #222; font-size: 12px; font-weight: 600; transition: all 0.2s; color: #94a3b8; }
         .cat-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
 
-        /* Blog Card */
-        .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 2rem; transition: all 0.3s ease; cursor: pointer; }
-        .blog-card:hover { border-color: #333; background: #141414; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        /* Blog Card + Hover Effect */
+        .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 2rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; position: relative; overflow: hidden; }
+        .blog-card:hover { border-color: #3b82f6; background: #141414; transform: translateY(-4px); box-shadow: 0 12px 40px rgba(59, 130, 246, 0.15); }
+        .blog-card::after { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: #3b82f6; opacity: 0; transition: opacity 0.3s; }
+        .blog-card:hover::after { opacity: 1; }
 
         /* Search */
         .search-container { background: #111; border: 1px solid #222; }
         .search-container:focus-within { border-color: #3b82f6; }
         .search-input { background: transparent; width: 100%; outline: none; color: #fff; padding: 1rem; }
 
-        /* --- 마크다운 스타일 커스터마이징 --- */
-        #modal-content { color: #d1d5db; line-height: 1.8; font-size: 1.05rem; }
-        
-        /* Headers */
-        #modal-content h1 { font-size: 2rem; font-weight: 800; margin: 2rem 0 1.2rem; color: #ffffff; border-bottom: 2px solid #1f2937; padding-bottom: 0.5rem; }
-        #modal-content h2 { font-size: 1.5rem; font-weight: 700; margin: 1.8rem 0 1rem; color: #f3f4f6; position: relative; padding-left: 1rem; }
+        /* --- 마크다운 스타일 커스터마이징 (글자 크기 조정) --- */
+        #modal-content { color: #d1d5db; line-height: 1.8; font-size: 0.95rem; } /* 글 크기 살짝 줄임 */
+        #modal-content h1 { font-size: 1.8rem; font-weight: 800; margin: 2rem 0 1.2rem; color: #ffffff; border-bottom: 2px solid #1f2937; padding-bottom: 0.5rem; }
+        #modal-content h2 { font-size: 1.3rem; font-weight: 700; margin: 1.8rem 0 1rem; color: #f3f4f6; position: relative; padding-left: 1rem; }
         #modal-content h2::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 4px; background: #3b82f6; border-radius: 2px; }
-        #modal-content h3 { font-size: 1.25rem; font-weight: 700; margin: 1.5rem 0 0.8rem; color: #e5e7eb; }
-
-        /* Inline & Block Code */
-        #modal-content code { background: #262626; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono'; color: #60a5fa; font-size: 0.9em; border: 1px solid #333; }
-        #modal-content pre { background: #0d0d0d; padding: 1.5rem; border-radius: 10px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid #1f2937; position: relative; }
-        #modal-content pre code { background: transparent; padding: 0; color: #e5e7eb; border: none; font-size: 0.9rem; line-height: 1.6; }
         
-        /* Lists & Paragraphs */
-        #modal-content p { margin-bottom: 1.25rem; }
-        #modal-content ul, #modal-content ol { padding-left: 1.5rem; margin-bottom: 1.25rem; color: #9ca3af; }
-        #modal-content ul { list-style-type: disc; }
-        #modal-content ol { list-style-type: decimal; }
-        #modal-content li { margin-bottom: 0.5rem; }
+        #modal-content code { background: #262626; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono'; color: #60a5fa; font-size: 0.85em; border: 1px solid #333; }
+        #modal-content pre { background: #0d0d0d; padding: 1.2rem; border-radius: 10px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid #1f2937; }
+        #modal-content pre code { background: transparent; border: none; font-size: 0.85rem; }
 
-        /* Blockquote */
         #modal-content blockquote { border-left: 4px solid #4b5563; padding: 0.8rem 1.2rem; background: #111; color: #9ca3af; font-style: italic; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
-        
-        /* Links */
-        #modal-content a { color: #3b82f6; text-decoration: underline; text-underline-offset: 4px; transition: color 0.2s; }
-        #modal-content a:hover { color: #60a5fa; }
-
-        /* Images */
         #modal-content img { max-width: 100%; border-radius: 12px; margin: 2rem 0; border: 1px solid #333; }
+
+        /* Info Box */
+        .info-card { background: #111; border: 1px solid #222; padding: 1.5rem; }
 
         /* Scrollbar */
         .modal-content-area::-webkit-scrollbar { width: 6px; }
@@ -111,26 +98,44 @@
         <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20"></div>
     </div>
 
-    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4 md:p-8">
-        <div class="absolute inset-0 bg-black/85 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="relative bg-[#0f0f0f] border border-[#222] w-full max-w-4xl max-h-[90vh] overflow-y-auto soft-edge shadow-2xl flex flex-col modal-content-area">
-            <div class="sticky top-0 bg-[#0f0f0f]/95 backdrop-blur-md border-b border-[#1a1a1a] p-6 flex justify-between items-center z-10">
-                <div id="modal-category" class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">CATEGORY</div>
+    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4 md:p-6">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-[#0a0a0a] border border-[#222] w-full max-w-6xl max-h-[95vh] overflow-hidden soft-edge shadow-2xl flex flex-col">
+            
+            <div class="flex justify-between items-center p-5 border-b border-[#1a1a1a] bg-[#0f0f0f]">
+                <div id="modal-category" class="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em]">CATEGORY</div>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
-            <div class="p-8 md:p-16">
-                <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-6 leading-tight"></h2>
-                <div class="flex items-center gap-4 mb-12 pb-6 border-b border-[#1a1a1a]">
-                    <div class="flex flex-col">
-                        <span id="modal-author" class="text-sm text-gray-300 font-semibold">Author</span>
-                        <span id="modal-date" class="text-xs text-gray-500 mono">DATE</span>
+
+            <div class="flex-1 overflow-y-auto p-6 md:p-12 modal-content-area">
+                <div class="flex flex-col md:flex-row gap-12">
+                    
+                    <div class="flex-1">
+                        <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-10 leading-tight tracking-tight"></h2>
+                        <div id="modal-content" class="markdown-body"></div>
                     </div>
+
+                    <div class="md:w-72 shrink-0">
+                        <div class="sticky top-0 space-y-4">
+                            <div class="info-card soft-edge space-y-4">
+                                <div>
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Author</p>
+                                    <p id="modal-author" class="text-sm text-blue-400 font-bold"></p>
+                                </div>
+                                <div class="border-t border-[#222] pt-4">
+                                    <p class="text-[10px] text-gray-500 font-bold uppercase mb-1">Published</p>
+                                    <p id="modal-date" class="text-xs text-gray-400 mono"></p>
+                                </div>
+                            </div>
+                            <div id="modal-tags" class="flex gap-2 flex-wrap"></div>
+                        </div>
+                    </div>
+
                 </div>
-                <div id="modal-content" class="markdown-body"></div>
-                <div id="modal-tags" class="mt-16 flex gap-3 flex-wrap"></div>
             </div>
+
         </div>
     </div>
 
@@ -174,13 +179,13 @@
                                     <span class="w-1 h-1 bg-gray-700 rounded-full"></span>
                                     <span class="text-[11px] text-gray-500 mono">${date}</span>
                                 </div>
-                                <h2 class="text-xl font-bold text-white mb-2">${p.title}</h2>
+                                <h2 class="text-xl font-bold text-white mb-2 transition-colors group-hover:text-blue-400">${p.title}</h2>
                                 <p class="text-gray-400 text-sm line-clamp-1">${p.content.substring(0, 100).replace(/[#*`]/g, '')}...</p>
                             </div>
                             <div class="flex flex-col md:items-end gap-2 shrink-0">
                                 <span class="text-xs text-gray-500">by <span class="text-gray-300 font-semibold">${p.author_nickname || 'Admin'}</span></span>
                                 <div class="flex gap-2">
-                                    ${p.tags ? p.tags.split(' ').map(t => `<span class="text-[10px] text-blue-400/80 mono">#${t.replace('#','')}</span>`).join('') : ''}
+                                    ${p.tags ? p.tags.split(' ').map(t => `<span class="text-[10px] text-blue-400/60 mono">#${t.replace('#','')}</span>`).join('') : ''}
                                 </div>
                             </div>
                         </div>
@@ -200,16 +205,12 @@
             document.getElementById('modal-author').innerText = post.author_nickname || 'Admin';
             document.getElementById('modal-date').innerText = date;
             
-            // 4. marked 옵션 추가 (gfm, breaks 등)
-            marked.setOptions({
-                gfm: true,
-                breaks: true
-            });
+            marked.setOptions({ gfm: true, breaks: true });
             document.getElementById('modal-content').innerHTML = marked.parse(post.content);
             
             const tagContainer = document.getElementById('modal-tags');
             tagContainer.innerHTML = post.tags 
-                ? post.tags.split(' ').map(t => `<span class="px-3 py-1 bg-[#1a1a1a] text-blue-400 text-xs mono soft-edge border border-[#222]">#${t.trim().replace('#','')}</span>`).join('')
+                ? post.tags.split(' ').map(t => `<span class="px-3 py-1 bg-[#1a1a1a] text-blue-400/80 text-[10px] mono soft-edge border border-[#222]">#${t.trim().replace('#','')}</span>`).join('')
                 : '';
 
             document.getElementById('post-modal').classList.remove('hidden');
