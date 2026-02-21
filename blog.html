@@ -5,93 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PYTHAVA | Archive</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #080808; 
-            color: #d1d5db;
-            padding-top: 64px;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #080808; color: #d1d5db; padding-top: 64px; }
         .mono { font-family: 'JetBrains Mono', monospace; }
         .soft-edge { border-radius: 8px; }
         .btn-edge { border-radius: 6px; }
 
         /* Navigation */
-        nav {
-            border-bottom: 1px solid #1a1a1a;
-            background-color: rgba(8, 8, 8, 0.85);
-            backdrop-filter: blur(12px);
-        }
-        .nav-link {
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-            transition: all 0.2s;
-        }
+        nav { border-bottom: 1px solid #1a1a1a; background-color: rgba(8, 8, 8, 0.85); backdrop-filter: blur(12px); }
+        .nav-link { font-size: 11px; font-weight: 600; letter-spacing: 0.05em; color: #94a3b8; transition: all 0.2s; }
         .nav-link:hover, .nav-link.active { color: #3b82f6; }
 
-        /* Category Buttons */
-        .cat-btn {
-            padding: 8px 20px;
-            background: #111;
-            border: 1px solid #222;
-            font-size: 12px;
-            font-weight: 600;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            color: #94a3b8;
-        }
-        .cat-btn.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
+        /* Card Style */
+        .blog-card { background: #0f0f0f; border: 1px solid #1a1a1a; padding: 2rem; transition: all 0.3s ease; cursor: pointer; }
+        .blog-card:hover { border-color: #333; background: #141414; transform: translateY(-2px); }
 
-        /* Blog Card */
-        .blog-card {
-            background: #0f0f0f;
-            border: 1px solid #1a1a1a;
-            padding: 2rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .blog-card:hover {
-            border-color: #333;
-            background: #141414;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+        /* === 마크다운 렌더링 스타일 (중요) === */
+        #modal-content { color: #d1d5db; line-height: 1.8; word-break: break-all; }
+        #modal-content h1 { font-size: 2rem; font-weight: 800; margin: 2rem 0 1rem; border-bottom: 1px solid #333; padding-bottom: 0.5rem; color: #fff; }
+        #modal-content h2 { font-size: 1.5rem; font-weight: 700; margin: 1.8rem 0 0.8rem; color: #fff; }
+        #modal-content h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.8rem; color: #fff; }
+        #modal-content p { margin-bottom: 1.2rem; }
+        #modal-content code { background: #1e1e1e; padding: 2px 5px; border-radius: 4px; font-family: 'JetBrains Mono'; color: #3b82f6; font-size: 0.9em; }
+        #modal-content pre { background: #111; padding: 1.2rem; border-radius: 8px; overflow-x: auto; margin-bottom: 1.5rem; border: 1px solid #222; }
+        #modal-content pre code { background: transparent; color: #e5e7eb; padding: 0; }
+        #modal-content blockquote { border-left: 4px solid #3b82f6; padding-left: 1rem; color: #9ca3af; font-style: italic; margin: 1.5rem 0; }
+        #modal-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.2rem; }
+        #modal-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.2rem; }
+        #modal-content img { max-width: 100%; border-radius: 8px; }
+        #modal-content a { color: #3b82f6; text-decoration: underline; }
 
-        /* Search */
-        .search-container {
-            background: #111;
-            border: 1px solid #222;
-        }
-        .search-container:focus-within { border-color: #3b82f6; }
-        .search-input {
-            background: transparent;
-            width: 100%;
-            outline: none;
-            color: #fff;
-            padding: 1rem;
-        }
-
-        /* Floating Button */
-        .write-btn {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            background: #3b82f6;
-            color: white;
-            padding: 16px 24px;
-            z-index: 100;
-            font-weight: 700;
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-        }
-
-        /* Custom Scrollbar for Modal */
+        /* Modal Layout */
         .modal-content-area::-webkit-scrollbar { width: 6px; }
         .modal-content-area::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
     </style>
@@ -102,73 +49,42 @@
         <div class="flex items-center gap-10">
             <a href="/" class="text-white font-extrabold text-xl tracking-tighter">PYTHAVA</a>
             <div class="hidden md:flex gap-6">
-                <a href="#" class="nav-link">WARGAME</a>
-                <a href="#" class="nav-link active">ARCHIVE</a>
-                <a href="#" class="nav-link">RANKING</a>
+                <a href="/wargame.html" class="nav-link">WARGAME</a>
+                <a href="/blog.html" class="nav-link active">ARCHIVE</a>
+                <a href="/ranking.html" class="nav-link">RANKING</a>
             </div>
         </div>
         <div class="flex items-center gap-4">
-            <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">
-                GUEST@SESSION
-            </div>
-            <button class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge hover:bg-gray-200 transition-all">SIGN_IN</button>
+            <div id="user-badge" class="hidden md:block text-[10px] mono text-gray-500 bg-[#111] px-3 py-1 soft-edge border border-gray-800">GUEST@SESSION</div>
+            <button onclick="location.href='/login.html'" class="text-[10px] font-bold bg-white text-black px-4 py-1.5 btn-edge">SIGN_IN</button>
         </div>
     </nav>
 
     <div class="max-w-6xl mx-auto p-6 md:p-12">
         <header class="mb-12">
-            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Archive</h1>
-            <p class="text-gray-500 text-sm">기록하고, 공유하며 함께 성장하는 공간입니다.</p>
+            <h1 class="text-4xl font-extrabold text-white mb-2">Archive</h1>
         </header>
 
-        <div class="flex flex-wrap gap-2 mb-10">
-            <button onclick="filterPosts('All')" class="cat-btn active btn-edge" id="btn-All">전체보기</button>
-            <button onclick="filterPosts('Write-up')" class="cat-btn btn-edge" id="btn-Write-up">Write-up</button>
-            <button onclick="filterPosts('Blog')" class="cat-btn btn-edge" id="btn-Blog">Blog</button>
-            <button onclick="filterPosts('Announcement')" class="cat-btn btn-edge" id="btn-Announcement">공지사항</button>
-            <button onclick="filterPosts('Free')" class="cat-btn btn-edge" id="btn-Free">자유게시판</button>
-        </div>
-
-        <div class="mb-16">
-            <div class="search-container soft-edge flex items-center px-5">
-                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                <input type="text" id="search-bar" onkeyup="searchPosts()" placeholder="찾으시는 글의 제목이나 태그를 입력하세요..." class="search-input text-sm">
-            </div>
-        </div>
-
-        <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20">
-            </div>
+        <div id="posts-container" class="grid grid-cols-1 gap-6 mb-20"></div>
     </div>
 
-    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4 md:p-8">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="closeModal()"></div>
-        <div class="relative bg-[#0f0f0f] border border-[#222] w-full max-w-4xl max-h-[85vh] overflow-y-auto soft-edge shadow-2xl flex flex-col modal-content-area">
-            <div class="sticky top-0 bg-[#0f0f0f]/90 backdrop-blur-md border-b border-[#1a1a1a] p-6 flex justify-between items-center z-10">
-                <div id="modal-category" class="text-[10px] font-bold text-blue-500 uppercase tracking-widest">CATEGORY</div>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-white transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
+    <div id="post-modal" class="fixed inset-0 z-[2000] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/90 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="relative bg-[#080808] border border-[#1a1a1a] w-full max-w-4xl max-h-[90vh] overflow-y-auto soft-edge shadow-2xl modal-content-area">
+            <div class="sticky top-0 bg-[#080808]/95 backdrop-blur-md p-6 flex justify-between items-center border-b border-[#1a1a1a] z-10">
+                <span id="modal-category" class="text-[10px] font-bold text-blue-500 mono">CATEGORY</span>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-white">닫기</button>
             </div>
-            <div class="p-8 md:p-12">
-                <h2 id="modal-title" class="text-3xl md:text-4xl font-extrabold text-white mb-6 leading-tight"></h2>
-                <div class="flex items-center gap-4 mb-10 pb-6 border-b border-[#1a1a1a]">
-                    <div class="flex flex-col">
-                        <span id="modal-author" class="text-sm text-gray-300 font-semibold">Author</span>
-                        <span id="modal-date" class="text-xs text-gray-500 mono">DATE</span>
-                    </div>
+            <div class="p-8 md:p-16">
+                <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-8"></h2>
+                <div id="modal-info" class="text-sm text-gray-500 mono mb-10 pb-6 border-b border-[#111]">
+                    BY <span id="modal-author" class="text-gray-300"></span> / <span id="modal-date"></span>
                 </div>
-                <div id="modal-content" class="text-gray-300 leading-relaxed text-lg whitespace-pre-wrap min-h-[200px]"></div>
-                <div id="modal-tags" class="mt-12 flex gap-3 flex-wrap"></div>
+                <div id="modal-content"></div>
+                <div id="modal-tags" class="mt-16 flex gap-2 flex-wrap"></div>
             </div>
         </div>
     </div>
-
-    <a href="/write.html" class="write-btn btn-edge text-sm">
-        <span class="flex items-center gap-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>
-            새 글 작성하기
-        </span>
-    </a>
 
     <script>
         const SB_URL = "https://udcsxjtnnrxolwmavyqo.supabase.co";
@@ -176,73 +92,42 @@
         const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
         let allPosts = [];
-        let currentFilter = 'All';
 
         async function init() {
-            const { data: { user } } = await _supabase.auth.getUser();
-            if (user) {
-                document.getElementById('user-badge').innerText = user.email.split('@')[0].toUpperCase();
-            }
-
-            const { data, error } = await _supabase
-                .from('posts')
-                .select('*')
-                .order('created_at', { ascending: false });
-
-            if (!error) {
-                allPosts = data || [];
-                renderPosts(allPosts);
-            }
+            const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
+            if (!error) { allPosts = data || []; renderPosts(allPosts); }
         }
 
         function renderPosts(posts) {
             const container = document.getElementById('posts-container');
-            if (posts.length === 0) {
-                container.innerHTML = `<div class="py-20 text-gray-600 text-center">작성된 게시글이 없습니다.</div>`;
-                return;
-            }
-
-            container.innerHTML = posts.map(p => {
-                const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-                return `
-                    <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                            <div>
-                                <div class="flex items-center gap-3 mb-3">
-                                    <span class="text-[10px] font-bold text-blue-500 uppercase tracking-wider">${p.category}</span>
-                                    <span class="w-1 h-1 bg-gray-700 rounded-full"></span>
-                                    <span class="text-[11px] text-gray-500 mono">${date}</span>
-                                </div>
-                                <h2 class="text-xl font-bold text-white mb-2">${p.title}</h2>
-                                <p class="text-gray-400 text-sm line-clamp-1">${p.content.substring(0, 120)}...</p>
-                            </div>
-                            <div class="flex flex-col md:items-end gap-2 shrink-0">
-                                <span class="text-xs text-gray-500">by <span class="text-gray-300 font-semibold">${p.author_nickname || 'Admin'}</span></span>
-                                <div class="flex gap-2">
-                                    ${p.tags ? p.tags.split(' ').map(t => `<span class="text-[10px] text-blue-400/80 mono">#${t.replace('#','')}</span>`).join('') : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+            container.innerHTML = posts.map(p => `
+                <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
+                    <span class="text-[10px] text-blue-500 font-bold uppercase">${p.category}</span>
+                    <h2 class="text-xl font-bold text-white mt-2">${p.title}</h2>
+                    <p class="text-gray-500 text-sm mt-2 line-clamp-1">${p.content.substring(0, 100).replace(/[#*`]/g, '')}</p>
+                </div>
+            `).join('');
         }
 
         function openModal(postId) {
             const post = allPosts.find(p => p.id == postId);
             if (!post) return;
 
-            const date = new Date(post.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-            
-            document.getElementById('modal-category').innerText = post.category;
             document.getElementById('modal-title').innerText = post.title;
-            document.getElementById('modal-author').innerText = post.author_nickname || 'Admin';
-            document.getElementById('modal-date').innerText = date;
-            document.getElementById('modal-content').innerText = post.content;
+            document.getElementById('modal-category').innerText = post.category;
+            document.getElementById('modal-author').innerText = (post.author_nickname || 'Admin').toUpperCase();
+            document.getElementById('modal-date').innerText = new Date(post.created_at).toLocaleDateString();
             
-            const tagContainer = document.getElementById('modal-tags');
-            tagContainer.innerHTML = post.tags 
-                ? post.tags.split(' ').map(t => `<span class="px-3 py-1 bg-[#1a1a1a] text-blue-400 text-xs mono soft-edge border border-[#222]">#${t.trim().replace('#','')}</span>`).join('')
+            // 핵심 수정: marked.parse() 호출
+            // 만약 브라우저 콘솔에 marked.parse is not a function 에러가 뜨면 marked(post.content)로 시도해 보세요.
+            try {
+                document.getElementById('modal-content').innerHTML = marked.parse(post.content);
+            } catch (e) {
+                document.getElementById('modal-content').innerHTML = marked(post.content);
+            }
+
+            document.getElementById('modal-tags').innerHTML = post.tags 
+                ? post.tags.split(' ').map(t => `<span class="text-xs text-blue-400 mono">#${t.replace('#','')}</span>`).join('') 
                 : '';
 
             document.getElementById('post-modal').classList.remove('hidden');
@@ -254,25 +139,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        function filterPosts(category) {
-            currentFilter = category;
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + category).classList.add('active');
-            const filtered = category === 'All' ? allPosts : allPosts.filter(p => p.category === category);
-            renderPosts(filtered);
-        }
-
-        function searchPosts() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
-            const filtered = allPosts.filter(p => {
-                const matchQuery = p.title.toLowerCase().includes(query) || p.content.toLowerCase().includes(query);
-                const matchCategory = currentFilter === 'All' || p.category === currentFilter;
-                return matchQuery && matchCategory;
-            });
-            renderPosts(filtered);
-        }
-
-        window.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
         init();
     </script>
 </body>
