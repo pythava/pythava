@@ -18,7 +18,6 @@
         .menu-dropdown { display: none; position: absolute; right: 0; top: 30px; background: #111; border: 1px solid #333; border-radius: 4px; z-index: 100; min-width: 100px; }
         .hidden { display: none; }
         .search-bar { background: #111; border: 1px solid #222; padding: 8px 16px; border-radius: 6px; font-size: 12px; width: 100%; outline: none; margin-bottom: 1rem; }
-        .search-bar:focus { border-color: #3b82f6; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -82,6 +81,7 @@
                         <form id="wargame-form" class="space-y-6">
                             <input type="hidden" id="wg-id">
                             <input type="text" id="wg-title" placeholder="Challenge Title" class="input-field py-4 text-lg font-bold" required>
+                            
                             <div class="grid grid-cols-2 gap-4">
                                 <select id="wg-category" class="input-field">
                                     <option value="Pwn">Pwnable</option>
@@ -97,6 +97,7 @@
                                     <option value="5">LEVEL 05</option>
                                 </select>
                             </div>
+
                             <textarea id="wg-desc" placeholder="Description" rows="5" class="input-field" required></textarea>
                             
                             <div class="grid grid-cols-2 gap-4">
@@ -104,12 +105,17 @@
                                 <input type="text" id="wg-custom-id" placeholder="Wargame ID (e.g. pwn_01)" class="input-field">
                             </div>
 
-                            <input type="text" id="wg-file-url" placeholder="File URL" class="input-field">
+                            <div class="space-y-2">
+                                <label class="text-[10px] text-gray-500 mono ml-1">ATTACH_FILES (Multiple available)</label>
+                                <input type="file" id="wg-files" class="input-field text-xs" multiple>
+                                <input type="text" id="wg-file-url-preview" placeholder="Storage URLs will be shown here after deploy" class="input-field text-[10px] opacity-50" readonly>
+                            </div>
+
                             <div class="grid grid-cols-2 gap-4">
                                 <input type="text" id="wg-flag" placeholder="FLAG{...}" class="input-field" required>
                                 <input type="number" id="wg-points" placeholder="Points" class="input-field" required>
                             </div>
-                            <button type="submit" id="wg-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-lg font-black text-sm uppercase hover:bg-emerald-500">Deploy</button>
+                            <button type="submit" id="wg-submit-btn" class="w-full bg-emerald-600 text-white py-4 rounded-lg font-black text-sm uppercase hover:bg-emerald-500">Deploy Challenge</button>
                         </form>
                     </div>
                     <div class="xl:col-span-2 space-y-4">
@@ -144,7 +150,6 @@
             });
             document.getElementById('section-' + name).classList.remove('hidden');
             document.getElementById('menu-' + name).classList.add('active');
-            
             if(name === 'wargame') fetchWargames();
             if(name === 'blog') fetchBlogs();
             if(name === 'user') fetchUsers();
@@ -185,17 +190,11 @@
         window.deleteData = async (table, id) => {
             if(!confirm(`정말로 삭제하시겠습니까? (ID: ${id})`)) return;
             const { error } = await _supabase.from(table).delete().eq('id', id);
-            if (error) {
-                alert("삭제 실패: " + error.message);
-            } else {
-                alert("삭제되었습니다.");
-                if(table === 'posts') fetchBlogs();
-                else if(table === 'challenges') fetchWargames();
-                else if(table === 'profiles') fetchUsers();
-            }
+            if (error) alert("삭제 실패: " + error.message);
+            else { alert("삭제되었습니다."); location.reload(); }
         };
 
-        // --- BLOG Logic ---
+        // --- BLOG Logic (기존 동일) ---
         document.getElementById('blog-form').onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('blog-id').value;
@@ -224,32 +223,69 @@
             `).join('');
         }
 
-        // --- WARGAME Logic (Modified) ---
+        // --- WARGAME Logic (Storage 지원) ---
         document.getElementById('wargame-form').onsubmit = async (e) => {
             e.preventDefault();
             const id = document.getElementById('wg-id').value;
-            
-            // 입력 데이터 가져오기
-            const description = document.getElementById('wg-desc').value;
-            const connection = document.getElementById('wg-connection').value;
-            const customId = document.getElementById('wg-custom-id').value;
+            const btn = document.getElementById('wg-submit-btn');
+            btn.disabled = true;
+            btn.innerText = "UPLOADING...";
 
-            // 요청하신 포맷으로 내용 조합
-            const finalContent = `${description}\n\n접속정보\n${connection}\nwargame id: ${customId}`;
+            try {
+                // 1. 파일 업로드 처리
+                const fileInput = document.getElementById('wg-files');
+                const files = fileInput.files;
+                let uploadedUrls = [];
 
-            const payload = {
-                title: document.getElementById('wg-title').value,
-                category: document.getElementById('wg-category').value,
-                level: parseInt(document.getElementById('wg-difficulty').value),
-                content: finalContent,
-                flag: document.getElementById('wg-flag').value,
-                points: parseInt(document.getElementById('wg-points').value),
-                file_url: document.getElementById('wg-file-url').value
-            };
+                if (files.length > 0) {
+                    for (let file of files) {
+                        const fileName = `${Date.now()}_${file.name}`;
+                        const { data, error } = await _supabase.storage
+                            .from('challenges')
+                            .upload(fileName, file);
+                        
+                        if (error) throw error;
+                        
+                        const { data: { publicUrl } } = _supabase.storage
+                            .from('challenges')
+                            .getPublicUrl(fileName);
+                        
+                        uploadedUrls.push(publicUrl);
+                    }
+                }
 
-            let res = id ? await _supabase.from('challenges').update(payload).eq('id', id) : await _supabase.from('challenges').insert([payload]);
-            if(res.error) alert(res.error.message);
-            else { alert("Success!"); resetWgForm(); fetchWargames(); }
+                // 2. 데이터 조합
+                const description = document.getElementById('wg-desc').value;
+                const connection = document.getElementById('wg-connection').value;
+                const customId = document.getElementById('wg-custom-id').value;
+                const finalContent = `${description}\n\n접속정보\n${connection}\nwargame id: ${customId}`;
+
+                const payload = {
+                    title: document.getElementById('wg-title').value,
+                    category: document.getElementById('wg-category').value,
+                    level: parseInt(document.getElementById('wg-difficulty').value),
+                    content: finalContent,
+                    flag: document.getElementById('wg-flag').value,
+                    points: parseInt(document.getElementById('wg-points').value),
+                    // 여러 파일이 있을 경우 쉼표로 구분하여 저장
+                    file_url: uploadedUrls.length > 0 ? uploadedUrls.join(',') : undefined
+                };
+
+                let res = id ? 
+                    await _supabase.from('challenges').update(payload).eq('id', id) : 
+                    await _supabase.from('challenges').insert([payload]);
+
+                if(res.error) throw res.error;
+                
+                alert("Success!");
+                resetWgForm();
+                fetchWargames();
+            } catch (err) {
+                alert("Error: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Deploy Challenge";
+            }
         };
 
         async function fetchWargames() {
@@ -265,7 +301,6 @@
             `).join('');
         }
 
-        // --- USER Logic ---
         async function fetchUsers() {
             const { data } = await _supabase.from('profiles').select('*').order('points', {ascending: false});
             document.getElementById('user-list-container').innerHTML = (data || []).map(u => `
@@ -295,24 +330,21 @@
                 document.getElementById('wg-title').value = data.title;
                 document.getElementById('wg-category').value = data.category;
                 document.getElementById('wg-difficulty').value = data.level;
-                
-                // 에디트 모드에서는 기존 content 전체를 보여줍니다.
                 document.getElementById('wg-desc').value = data.content;
                 document.getElementById('wg-flag').value = data.flag;
                 document.getElementById('wg-points').value = data.points;
-                document.getElementById('wg-file-url').value = data.file_url || '';
+                document.getElementById('wg-file-url-preview').value = data.file_url || '';
                 document.getElementById('wg-form-title').innerText = "// Edit Mode (ID: " + data.id + ")";
                 document.getElementById('wg-submit-btn').innerText = "Update Challenge";
             }
             window.scrollTo({ top: 0, behavior: 'smooth' });
         };
 
-        function resetBlogForm() { document.getElementById('blog-form').reset(); document.getElementById('blog-id').value = ''; document.getElementById('blog-form-title').innerText = "Create New Post"; }
+        function resetBlogForm() { document.getElementById('blog-form').reset(); document.getElementById('blog-id').value = ''; }
         function resetWgForm() { 
             document.getElementById('wargame-form').reset(); 
             document.getElementById('wg-id').value = ''; 
-            document.getElementById('wg-connection').value = '';
-            document.getElementById('wg-custom-id').value = '';
+            document.getElementById('wg-file-url-preview').value = '';
             document.getElementById('wg-form-title').innerText = "Deploy Challenge"; 
         }
         function handleLogout() { _supabase.auth.signOut().then(() => location.href='/login'); }
