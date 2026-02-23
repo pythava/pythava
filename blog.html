@@ -34,17 +34,21 @@
         .search-container:focus-within { border-color: #3b82f6; }
         .search-input { background: transparent; width: 100%; outline: none; color: #fff; padding: 1rem; }
 
-        /* --- 마크다운 스타일 커스터마이징 (글자 크기 조정) --- */
-        #modal-content { color: #d1d5db; line-height: 1.8; font-size: 0.95rem; } /* 글 크기 살짝 줄임 */
+        /* --- 마크다운 스타일 커스터마이징 --- */
+        #modal-content { color: #d1d5db; line-height: 1.8; font-size: 1rem; }
         #modal-content h1 { font-size: 1.8rem; font-weight: 800; margin: 2rem 0 1.2rem; color: #ffffff; border-bottom: 2px solid #1f2937; padding-bottom: 0.5rem; }
-        #modal-content h2 { font-size: 1.3rem; font-weight: 700; margin: 1.8rem 0 1rem; color: #f3f4f6; position: relative; padding-left: 1rem; }
+        #modal-content h2 { font-size: 1.4rem; font-weight: 700; margin: 1.8rem 0 1rem; color: #f3f4f6; position: relative; padding-left: 1rem; }
         #modal-content h2::before { content: ''; position: absolute; left: 0; top: 0.4rem; bottom: 0.4rem; width: 4px; background: #3b82f6; border-radius: 2px; }
+        #modal-content h3 { font-size: 1.2rem; font-weight: 700; margin: 1.5rem 0 0.8rem; color: #e5e7eb; }
         
+        #modal-content p { margin-bottom: 1.25rem; }
         #modal-content code { background: #262626; padding: 0.2rem 0.4rem; border-radius: 4px; font-family: 'JetBrains Mono'; color: #60a5fa; font-size: 0.85em; border: 1px solid #333; }
         #modal-content pre { background: #0d0d0d; padding: 1.2rem; border-radius: 10px; overflow-x: auto; margin: 1.5rem 0; border: 1px solid #1f2937; }
-        #modal-content pre code { background: transparent; border: none; font-size: 0.85rem; }
+        #modal-content pre code { background: transparent; border: none; font-size: 0.85rem; color: #e5e7eb; padding: 0; }
 
         #modal-content blockquote { border-left: 4px solid #4b5563; padding: 0.8rem 1.2rem; background: #111; color: #9ca3af; font-style: italic; margin: 1.5rem 0; border-radius: 0 8px 8px 0; }
+        #modal-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+        #modal-content li { margin-bottom: 0.5rem; }
         #modal-content img { max-width: 100%; border-radius: 12px; margin: 2rem 0; border: 1px solid #333; }
 
         /* Info Box */
@@ -111,10 +115,9 @@
 
             <div class="flex-1 overflow-y-auto p-6 md:p-12 modal-content-area">
                 <div class="flex flex-col md:flex-row gap-12">
-                    
                     <div class="flex-1">
                         <h2 id="modal-title" class="text-3xl md:text-5xl font-extrabold text-white mb-10 leading-tight tracking-tight"></h2>
-                        <div id="modal-content" class="markdown-body"></div>
+                        <div id="modal-content"></div>
                     </div>
 
                     <div class="md:w-72 shrink-0">
@@ -132,10 +135,8 @@
                             <div id="modal-tags" class="flex gap-2 flex-wrap"></div>
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -154,12 +155,23 @@
         let allPosts = [];
         let currentFilter = 'All';
 
+        // Marked 옵션 전역 설정
+        marked.setOptions({
+            gfm: true,
+            breaks: true,
+            headerIds: false,
+            mangle: false
+        });
+
         async function init() {
             const { data: { user } } = await _supabase.auth.getUser();
             if (user) document.getElementById('user-badge').innerText = user.email.split('@')[0].toUpperCase();
 
             const { data, error } = await _supabase.from('posts').select('*').order('created_at', { ascending: false });
-            if (!error) { allPosts = data || []; renderPosts(allPosts); }
+            if (!error) { 
+                allPosts = data || []; 
+                renderPosts(allPosts); 
+            }
         }
 
         function renderPosts(posts) {
@@ -170,6 +182,9 @@
             }
             container.innerHTML = posts.map(p => {
                 const date = new Date(p.created_at).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+                // 마크다운 기호 제거하여 요약문 생성
+                const summary = p.content.replace(/[#*`]/g, '').substring(0, 100);
+                
                 return `
                     <div class="blog-card soft-edge" onclick="openModal('${p.id}')">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -180,7 +195,7 @@
                                     <span class="text-[11px] text-gray-500 mono">${date}</span>
                                 </div>
                                 <h2 class="text-xl font-bold text-white mb-2 transition-colors group-hover:text-blue-400">${p.title}</h2>
-                                <p class="text-gray-400 text-sm line-clamp-1">${p.content.substring(0, 100).replace(/[#*`]/g, '')}...</p>
+                                <p class="text-gray-400 text-sm line-clamp-1">${summary}...</p>
                             </div>
                             <div class="flex flex-col md:items-end gap-2 shrink-0">
                                 <span class="text-xs text-gray-500">by <span class="text-gray-300 font-semibold">${p.author_nickname || 'Admin'}</span></span>
@@ -205,8 +220,8 @@
             document.getElementById('modal-author').innerText = post.author_nickname || 'Admin';
             document.getElementById('modal-date').innerText = date;
             
-            marked.setOptions({ gfm: true, breaks: true });
-            document.getElementById('modal-content').innerHTML = marked.parse(post.content);
+            // 마크다운 파싱 및 삽입
+            document.getElementById('modal-content').innerHTML = marked.parse(post.content || "");
             
             const tagContainer = document.getElementById('modal-tags');
             tagContainer.innerHTML = post.tags 
@@ -215,6 +230,9 @@
 
             document.getElementById('post-modal').classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            
+            // 모달 열 때 스크롤 상단으로 초기화
+            document.querySelector('.modal-content-area').scrollTop = 0;
         }
 
         function closeModal() {
